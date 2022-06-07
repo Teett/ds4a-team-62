@@ -55,6 +55,19 @@ Treemap_fig = px.treemap(
     color_discrete_sequence=px.colors.qualitative.Dark24,
 )
 
+#Create the Scatter_fig
+Scatter_fig = px.scatter(
+    df,
+    x="Sales",
+    y="Profit",
+    color="Category",
+    hover_data=["State", "Sub-Category", "Order ID", "Product Name"],
+)
+Scatter_fig.update_layout(
+    title="Sales vs. Profit in selected states", paper_bgcolor="#F8F9F9"
+)
+
+
 sidebar = html.Div(
     [
         html.H2("Sidebar", className="display-4"),
@@ -98,20 +111,57 @@ app.layout = html.Div(
 def render_page_content(pathname):
     if pathname == "/":
         return html.Div([
-            html.H1('This is the first Title'),
-            dbc.Row(
-                [dbc.Col(
-                    dcc.Graph(figure=Treemap_fig, id="Treemap"))
-                    ]
-                )
+            dbc.Row([
+                dbc.Col("Key Variable Inputs",md=4),
+                dbc.Col("Model Output", md=8)
+            ]),
+            dbc.Row([
+                dbc.Col(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
+                                options =[{'label':'Option A','value':'Optiona A'},
+                                          {'label': 'Option B', 'value': 'Option B'}]),md=4),
+                dbc.Col( dcc.Graph(figure=Treemap_fig, id="Treemap"), md=8)
+            ]),
         ]
                     )
     elif pathname == "/page-1":
-        return html.P("This is the content of page 1. Yay!")
+        return html.Div([
+            dbc.Row([
+                dbc.Col("Key Variable Inputs",md=6),
+                dbc.Col("Model Output", md=6)
+            ]),
+            dbc.Row([
+                dbc.Col(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
+                                options =[{'label':'Option A','value':'Optiona A'},
+                                          {'label': 'Option B', 'value': 'Option B'}]),md=6),
+                dbc.Col( dcc.Graph(figure=Treemap_fig, id="Treemap"), md=6)
+            ]),
+        ]
+                    )
     elif pathname == "/page-2":
-        return html.P("Oh cool, this is page 2!")
+         return html.Div([
+            dbc.Row([
+                dbc.Col(dbc.Col(dcc.Graph(figure=Scatter_fig, id="Scatter")),md=6),
+                dbc.Col("Model Output", md=6)
+            ]),
+            dbc.Row([
+                dbc.Col(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
+                                options =[{'label':'Option A','value':'Optiona A'},
+                                          {'label': 'Option B', 'value': 'Option B'}]),md=6),
+                dbc.Col(dcc.Graph(figure=Treemap_fig, id="Treemap"), md=6)
+            ]),
+        ]
+                    )
     elif pathname == "/page-3":
-        return html.P("Oh cool, this is page 3!")
+        return html.Div(
+            [
+                dbc.Row("Luis Serna"),
+                dbc.Row("Jeyson Guzman"),
+                dbc.Row("Cristian Rodriguez"),
+                dbc.Row("Juan Barrios"),
+                dbc.Row("Luis Daniel Chavarria"),
+                dbc.Row("Maria Paula Alvarez"),
+            ]
+        )
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
