@@ -13,6 +13,10 @@ documentation: https://dash.plot.ly/urls
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html
+import plotly.express as px
+import pandas as pd
+import json
+import os
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -35,6 +39,22 @@ CONTENT_STYLE = {
     "padding": "2rem 1rem",
 }
 
+
+################################################################################################
+# Load the data and create the map
+################################################################################################
+
+df = pd.read_csv('data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
+
+## Create the TreeMap
+
+Treemap_fig = px.treemap(
+    df,
+    path=["Category", "Sub-Category", "State"],
+    values="Sales",
+    color_discrete_sequence=px.colors.qualitative.Dark24,
+)
+
 sidebar = html.Div(
     [
         html.H2("Sidebar", className="display-4"),
@@ -44,9 +64,10 @@ sidebar = html.Div(
         ),
         dbc.Nav(
             [
-                dbc.NavLink("Home", href="/", active="exact"),
-                dbc.NavLink("Page 1", href="/page-1", active="exact"),
-                dbc.NavLink("Page 2", href="/page-2", active="exact"),
+                dbc.NavLink("Dashboard", href="/", active="exact"),
+                dbc.NavLink("The Model", href="/page-1", active="exact"),
+                dbc.NavLink("Descriptive analytics", href="/page-2", active="exact"),
+                dbc.NavLink("The Team", href="/page-3", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -57,17 +78,40 @@ sidebar = html.Div(
 
 content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
-
+app.layout = html.Div(
+    [
+    dcc.Location(id="url"),
+    html.Div(
+        [
+            dbc.Row(
+                [
+                    html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL')
+                    ]
+                )
+        ]),
+    dbc.Col(sidebar),
+    dbc.Col(content)
+    ]
+)
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
-        return html.P("This is the content of the home page!")
+        return html.Div([
+            html.H1('This is the first Title'),
+            dbc.Row(
+                [dbc.Col(
+                    dcc.Graph(figure=Treemap_fig, id="Treemap"))
+                    ]
+                )
+        ]
+                    )
     elif pathname == "/page-1":
         return html.P("This is the content of page 1. Yay!")
     elif pathname == "/page-2":
         return html.P("Oh cool, this is page 2!")
+    elif pathname == "/page-3":
+        return html.P("Oh cool, this is page 3!")
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
