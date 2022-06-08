@@ -1,60 +1,36 @@
-# This file may be used to create an environment using:
-# $ conda create --name <env> --file <this file>
-# platform: win-64
-blas=1.0=mkl
-bottleneck=1.3.4=py310h9128911_0
-brotli=1.0.9=pypi_0
-brotlipy=0.7.0=py310h2bbff1b_1002
-bzip2=1.0.8=he774522_0
-ca-certificates=2022.4.26=haa95532_0
-certifi=2022.5.18.1=py310haa95532_0
-cffi=1.15.0=py310h2bbff1b_1
-click=8.0.4=py310haa95532_0
-colorama=0.4.4=pyhd3eb1b0_0
-dash=2.5.0=pypi_0
-dash-bootstrap-components=1.1.0=pypi_0
-dash-core-components=2.0.0=pypi_0
-dash-html-components=2.0.0=pypi_0
-dash-renderer=1.1.2=py_0
-dash-table=5.0.0=pypi_0
-dataclasses=0.8=pyh6d0b6a4_7
-flask=2.0.3=pyhd3eb1b0_0
-flask-compress=1.5.0=py_0
-future=0.18.2=py310haa95532_1
-intel-openmp=2021.4.0=haa95532_3556
-itsdangerous=2.0.1=pyhd3eb1b0_0
-jinja2=3.0.3=pyhd3eb1b0_0
-libffi=3.4.2=h604cdb4_1
-markupsafe=2.1.1=py310h2bbff1b_0
-mkl=2021.4.0=haa95532_640
-mkl-service=2.4.0=py310h2bbff1b_0
-mkl_fft=1.3.1=py310ha0764ea_0
-mkl_random=1.2.2=py310h4ed8f06_0
-numexpr=2.8.1=py310hb57aa6b_1
-numpy=1.22.3=py310h6d2d95c_0
-numpy-base=1.22.3=py310h206c741_0
-openssl=1.1.1o=h2bbff1b_0
-packaging=21.3=pyhd3eb1b0_0
-pandas=1.4.2=py310hd77b12b_0
-pip=21.2.4=py310haa95532_0
-plotly=5.6.0=pyhd3eb1b0_0
-pycparser=2.21=pyhd3eb1b0_0
-pyparsing=3.0.4=pyhd3eb1b0_0
-python=3.10.4=hbb2ffb3_0
-python-dateutil=2.8.2=pyhd3eb1b0_0
-pytz=2021.3=pyhd3eb1b0_0
-pyyaml=6.0=py310h2bbff1b_0
-setuptools=61.2.0=py310haa95532_0
-six=1.16.0=pyhd3eb1b0_1
-sqlite=3.38.3=h2bbff1b_0
-tenacity=8.0.1=py310haa95532_0
-tk=8.6.12=h2bbff1b_0
-tzdata=2022a=hda174b7_0
-vc=14.2=h21ff451_1
-vs2015_runtime=14.27.29016=h5e58377_2
-werkzeug=2.0.3=pyhd3eb1b0_0
-wheel=0.37.1=pyhd3eb1b0_0
-wincertstore=0.2=py310haa95532_2
-xz=5.2.5=h8cc25b3_1
-yaml=0.2.5=he774522_0
-zlib=1.2.12=h8cc25b3_2
+Bottleneck @ file:///C:/ci/bottleneck_1648029530934/work
+Brotli==1.0.9
+brotlipy==0.7.0
+certifi==2022.5.18.1
+cffi @ file:///C:/ci_310/cffi_1643036627027/work
+click @ file:///C:/ci/click_1646056762388/work
+colorama @ file:///tmp/build/80754af9/colorama_1607707115595/work
+dash==2.5.0
+dash-bootstrap-components==1.1.0
+dash-core-components==2.0.0
+dash-html-components==2.0.0
+dash-renderer==1.1.2
+dash-table==5.0.0
+Flask @ file:///opt/conda/conda-bld/flask_1648041541647/work
+Flask-Compress==1.5.0
+future @ file:///C:/ci_310/future_1642081234309/work
+itsdangerous @ file:///tmp/build/80754af9/itsdangerous_1621432558163/work
+Jinja2 @ file:///opt/conda/conda-bld/jinja2_1647436528585/work
+MarkupSafe @ file:///C:/ci/markupsafe_1654508036328/work
+mkl-fft==1.3.1
+mkl-random @ file:///C:/ci_310/mkl_random_1643050563308/work
+mkl-service==2.4.0
+numexpr @ file:///C:/ci_310/numexpr_1642084889105/work
+numpy @ file:///C:/ci/numpy_and_numpy_base_1652784037925/work
+packaging @ file:///tmp/build/80754af9/packaging_1637314298585/work
+pandas @ file:///C:/ci/pandas_1650373461903/work
+plotly @ file:///opt/conda/conda-bld/plotly_1646671701182/work
+pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
+pyparsing @ file:///tmp/build/80754af9/pyparsing_1635766073266/work
+python-dateutil @ file:///tmp/build/80754af9/python-dateutil_1626374649649/work
+pytz==2021.3
+PyYAML==6.0
+six @ file:///tmp/build/80754af9/six_1644875935023/work
+tenacity @ file:///C:/ci_310/tenacity_1642674931705/work
+Werkzeug @ file:///opt/conda/conda-bld/werkzeug_1645628268370/work
+wincertstore==0.2
