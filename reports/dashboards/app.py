@@ -13,8 +13,8 @@ documentation: https://dash.plot.ly/urls
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html
-import plotly.express as px
 import pandas as pd
+import plotly.express as px
 import json
 import os
 
