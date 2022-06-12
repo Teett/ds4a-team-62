@@ -15,8 +15,6 @@ import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html
 import pandas as pd
 import plotly.express as px
-import json
-import os
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
