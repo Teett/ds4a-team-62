@@ -31,6 +31,7 @@ SIDEBAR_STYLE = {
 
 # the styles for the main content position it to the right of the sidebar and
 # add some padding.
+
 CONTENT_STYLE = {
     "margin-left": "18rem",
     "margin-right": "2rem",
@@ -42,7 +43,7 @@ CONTENT_STYLE = {
 # Load the data and create the map
 ################################################################################################
 
-df = pd.read_csv('data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
+df = pd.read_csv('../../../data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
 
 ## Create the TreeMap
 
@@ -69,6 +70,7 @@ Scatter_fig.update_layout(
 sidebar = html.Div(
     [
         html.H2("Sidebar", className="display-4"),
+        html_img(src="data:image/png;base64,$(open(base64encode, "/path/to/file.png"))"),
         html.Hr(),
         html.P(
             "A simple sidebar layout with navigation links", className="lead"
@@ -96,7 +98,7 @@ app.layout = html.Div(
         [
             dbc.Row(
                 [
-                    html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL')
+                    html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL',style={'textAlign': 'center'})
                     ]
                 )
         ]),
