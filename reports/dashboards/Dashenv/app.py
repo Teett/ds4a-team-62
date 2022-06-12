@@ -38,7 +38,6 @@ CONTENT_STYLE = {
     "padding": "2rem 1rem",
 }
 
-
 ################################################################################################
 # Load the data and create the map
 ################################################################################################
@@ -66,11 +65,14 @@ Scatter_fig.update_layout(
     title="Sales vs. Profit in selected states", paper_bgcolor="#F8F9F9"
 )
 
+##Image path ##
+
+image_path = 'assets/DS4A.png'
 
 sidebar = html.Div(
     [
-        html.H2("Sidebar", className="display-4"),
-        html_img(src="data:image/png;base64,$(open(base64encode, "/path/to/file.png"))"),
+        #html.H2("Sidebar", className="display-4"),
+        html.Img(src = image_path,style={'height':'20%', 'width':'80%'}),
         html.Hr(),
         html.P(
             "A simple sidebar layout with navigation links", className="lead"
