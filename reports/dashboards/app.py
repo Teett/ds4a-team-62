@@ -42,7 +42,7 @@ CONTENT_STYLE = {
 # Load the data and create the map
 ################################################################################################
 
-df = pd.read_csv('../../../data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
+df = pd.read_csv('data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
 
 ## Create the TreeMap
 
