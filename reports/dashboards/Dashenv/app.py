@@ -65,14 +65,22 @@ Scatter_fig.update_layout(
     title="Sales vs. Profit in selected states", paper_bgcolor="#F8F9F9"
 )
 
-##Image path ##
+##Images paths ##
 
 image_path = 'assets/DS4A.png'
+team_image_path = 'assets/DS4A Team 62.png'
+daniel = 'assets/Daniel.png'
+maria = 'assets/Maria.png'
+jeyson = 'assets/Jeyson.png'
+juan = 'assets/Juan.png'
+luis = 'assets/foto team.png'
+
+##Sidebar
 
 sidebar = html.Div(
     [
         #html.H2("Sidebar", className="display-4"),
-        html.Img(src = image_path,style={'height':'20%', 'width':'80%'}),
+        html.Img(src = image_path,style={'height':'23%', 'width':'82%'}),
         html.Hr(),
         html.P(
             "A simple sidebar layout with navigation links", className="lead"
@@ -100,7 +108,8 @@ app.layout = html.Div(
         [
             dbc.Row(
                 [
-                    html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL',style={'textAlign': 'center'})
+                    html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL',style={'textAlign': 'center'}),
+                    html.Hr()
                     ]
                 )
         ]),
@@ -110,6 +119,7 @@ app.layout = html.Div(
 )
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+
 def render_page_content(pathname):
     if pathname == "/":
         return html.Div([
@@ -155,15 +165,51 @@ def render_page_content(pathname):
                     )
     elif pathname == "/page-3":
         return html.Div(
-            [
-                dbc.Row("Luis Serna"),
-                dbc.Row("Jeyson Guzman"),
-                dbc.Row("Cristian Rodriguez"),
-                dbc.Row("Juan Barrios"),
-                dbc.Row("Luis Daniel Chavarria"),
-                dbc.Row("Maria Paula Alvarez"),
-            ]
-        )
+            [   
+                dbc.Row(html.Img(src = team_image_path,style={'height':'50%', 'width':'30%','display': 'block','margin-left': 'auto','margin-right': 'auto'})),
+                html.Hr(),
+                dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                        html.Div("Luis Felipe Serna"),
+                        html.Br(),
+                        html.Img(src = luis,style={'height':'60%', 'width':'60%'})
+                            ]),
+                    dbc.Col(
+                        [
+                        html.Div("Luis Daniel Chavarria"),
+                        html.Br(),
+                        html.Img(src = daniel,style={'height':'60%', 'width':'60%'})
+                            ]),
+                    dbc.Col(
+                        [
+                        html.Div("Maria Paula Alvarez"),
+                        html.Br(),
+                        html.Img(src = maria,style={'height':'60%', 'width':'60%'})
+                            ]),
+                    dbc.Col(
+                        [
+                        html.Div("Juan Barrios"),
+                        html.Br(),
+                        html.Img(src = juan,style={'height':'60%', 'width':'60%'})
+                            ]),                    
+                    dbc.Col(
+                        [
+                        html.Div("Jeyson Guzman"),
+                        html.Br(),
+                        html.Img(src = jeyson,style={'height':'60%', 'width':'60%'})
+                            ]),
+                    dbc.Col(
+                        [
+                        html.Div("Cristian Rodriguez"),
+                        html.Br(),
+                        #html.Img(src = daniel,style={'height':'60%', 'width':'10%'})
+                            ]), 
+                        ]
+                      )  
+                    ]
+                )
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
