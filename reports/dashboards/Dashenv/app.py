@@ -74,8 +74,9 @@ maria = 'assets/Maria.png'
 jeyson = 'assets/Jeyson.png'
 juan = 'assets/Juan.png'
 luis = 'assets/foto team.png'
+#cristian = pending
 
-##Sidebar
+##Sidebar ##
 
 sidebar = html.Div(
     [
@@ -99,8 +100,45 @@ sidebar = html.Div(
     style=SIDEBAR_STYLE,
 )
 
+## Content###
+
 content = html.Div(id="page-content", style=CONTENT_STYLE)
 
+## Card components ##
+
+cards = [
+    dbc.Card(
+        [
+            #html.H2(f"{train_acc*100:.2f}%", className="card-title"),
+            html.H2(f"95.59%", className="card-title"),
+            html.P("Model Training Accuracy", className="card-text"),
+        ],
+        body=True,
+        color="light",
+    ),
+    dbc.Card(
+        [
+            #html.H2(f"{test_acc*100:.2f}%", className="card-title"),
+            html.H2(f"80.23%", className="card-title"),
+            html.P("Model Test Accuracy", className="card-text"),
+        ],
+        body=True,
+        color="dark",
+        inverse=True,
+    ),
+    dbc.Card(
+        [
+            #html.H2(f"{dfTrain.shape[0]} / {dfTest.shape[0]}", className="card-title"),
+            html.H2(f" 13.529 / 6.208", className="card-title"),
+            html.P("Train / Test Split", className="card-text"),
+        ],
+        body=True,
+        color="primary",
+        inverse=True,
+    ),
+]
+
+### Layout####
 app.layout = html.Div(
     [
     dcc.Location(id="url"),
@@ -137,6 +175,9 @@ def render_page_content(pathname):
                     )
     elif pathname == "/page-1":
         return html.Div([
+
+            dbc.Row([dbc.Col(card) for card in cards]),
+            html.Br(),
             dbc.Row([
                 dbc.Col("Key Variable Inputs",md=6),
                 dbc.Col("Model Output", md=6)
