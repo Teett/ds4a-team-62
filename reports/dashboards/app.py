@@ -43,6 +43,7 @@ CONTENT_STYLE = {
 ################################################################################################
 
 df = pd.read_csv('data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
+raw_er_admission = pd.read_excel('data/raw/er_admission.xlsx', sheet_name = 'Data')
 
 ## Create the TreeMap
 
