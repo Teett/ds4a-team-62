@@ -31,18 +31,18 @@ SIDEBAR_STYLE = {
 
 # the styles for the main content position it to the right of the sidebar and
 # add some padding.
+
 CONTENT_STYLE = {
     "margin-left": "18rem",
     "margin-right": "2rem",
     "padding": "2rem 1rem",
 }
 
-
 ################################################################################################
 # Load the data and create the map
 ################################################################################################
 
-df = pd.read_csv('data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
+df = pd.read_csv('../../../data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
 
 ## Create the TreeMap
 
@@ -65,10 +65,23 @@ Scatter_fig.update_layout(
     title="Sales vs. Profit in selected states", paper_bgcolor="#F8F9F9"
 )
 
+##Images paths ##
+
+image_path = 'assets/DS4A.png'
+team_image_path = 'assets/DS4A Team 62.png'
+daniel = 'assets/Daniel.png'
+maria = 'assets/Maria.png'
+jeyson = 'assets/Jeyson.png'
+juan = 'assets/Juan.png'
+luis = 'assets/foto team.png'
+#cristian = pending
+
+##Sidebar ##
 
 sidebar = html.Div(
     [
-        html.H2("Sidebar", className="display-4"),
+        #html.H2("Sidebar", className="display-4"),
+        html.Img(src = image_path,style={'height':'23%', 'width':'82%'}),
         html.Hr(),
         html.P(
             "A simple sidebar layout with navigation links", className="lead"
@@ -87,8 +100,45 @@ sidebar = html.Div(
     style=SIDEBAR_STYLE,
 )
 
+## Content###
+
 content = html.Div(id="page-content", style=CONTENT_STYLE)
 
+## Card components ##
+
+cards = [
+    dbc.Card(
+        [
+            #html.H2(f"{train_acc*100:.2f}%", className="card-title"),
+            html.H2(f"95.59%", className="card-title"),
+            html.P("Model Training Accuracy", className="card-text"),
+        ],
+        body=True,
+        color="light",
+    ),
+    dbc.Card(
+        [
+            #html.H2(f"{test_acc*100:.2f}%", className="card-title"),
+            html.H2(f"80.23%", className="card-title"),
+            html.P("Model Test Accuracy", className="card-text"),
+        ],
+        body=True,
+        color="dark",
+        inverse=True,
+    ),
+    dbc.Card(
+        [
+            #html.H2(f"{dfTrain.shape[0]} / {dfTest.shape[0]}", className="card-title"),
+            html.H2(f" 13.529 / 6.208", className="card-title"),
+            html.P("Train / Test Split", className="card-text"),
+        ],
+        body=True,
+        color="primary",
+        inverse=True,
+    ),
+]
+
+### Layout####
 app.layout = html.Div(
     [
     dcc.Location(id="url"),
@@ -96,7 +146,8 @@ app.layout = html.Div(
         [
             dbc.Row(
                 [
-                    html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL')
+                    html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL',style={'textAlign': 'center'}),
+                    html.Hr()
                     ]
                 )
         ]),
@@ -106,6 +157,7 @@ app.layout = html.Div(
 )
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+
 def render_page_content(pathname):
     if pathname == "/":
         return html.Div([
@@ -123,6 +175,9 @@ def render_page_content(pathname):
                     )
     elif pathname == "/page-1":
         return html.Div([
+
+            dbc.Row([dbc.Col(card) for card in cards]),
+            html.Br(),
             dbc.Row([
                 dbc.Col("Key Variable Inputs",md=6),
                 dbc.Col("Model Output", md=6)
@@ -151,15 +206,51 @@ def render_page_content(pathname):
                     )
     elif pathname == "/page-3":
         return html.Div(
-            [
-                dbc.Row("Luis Serna"),
-                dbc.Row("Jeyson Guzman"),
-                dbc.Row("Cristian Rodriguez"),
-                dbc.Row("Juan Barrios"),
-                dbc.Row("Luis Daniel Chavarria"),
-                dbc.Row("Maria Paula Alvarez"),
-            ]
-        )
+            [   
+                dbc.Row(html.Img(src = team_image_path,style={'height':'50%', 'width':'30%','display': 'block','margin-left': 'auto','margin-right': 'auto'})),
+                html.Hr(),
+                dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                        html.Div("Luis Felipe Serna"),
+                        html.Br(),
+                        html.Img(src = luis,style={'height':'60%', 'width':'60%'})
+                            ]),
+                    dbc.Col(
+                        [
+                        html.Div("Luis Daniel Chavarria"),
+                        html.Br(),
+                        html.Img(src = daniel,style={'height':'60%', 'width':'60%'})
+                            ]),
+                    dbc.Col(
+                        [
+                        html.Div("Maria Paula Alvarez"),
+                        html.Br(),
+                        html.Img(src = maria,style={'height':'60%', 'width':'60%'})
+                            ]),
+                    dbc.Col(
+                        [
+                        html.Div("Juan Barrios"),
+                        html.Br(),
+                        html.Img(src = juan,style={'height':'60%', 'width':'60%'})
+                            ]),                    
+                    dbc.Col(
+                        [
+                        html.Div("Jeyson Guzman"),
+                        html.Br(),
+                        html.Img(src = jeyson,style={'height':'60%', 'width':'60%'})
+                            ]),
+                    dbc.Col(
+                        [
+                        html.Div("Cristian Rodriguez"),
+                        html.Br(),
+                        #html.Img(src = daniel,style={'height':'60%', 'width':'10%'})
+                            ]), 
+                        ]
+                      )  
+                    ]
+                )
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
