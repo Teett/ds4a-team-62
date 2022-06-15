@@ -283,7 +283,7 @@ def render_page_content(pathname):
                         [
                         html.Div("Cristian Rodriguez"),
                         html.Br(),
-                        html.Img(src = cristian,style={'height':'60%', 'width':'10%'})
+                        html.Img(src = cristian,style={'height':'60%', 'width':'60%'})
                             ]), 
                         ]
                       )  
