@@ -12,7 +12,7 @@ documentation: https://dash.plot.ly/urls
 """
 import dash
 import dash_bootstrap_components as dbc
-from dash import Input, Output, dcc, html
+from dash import Input, Output, dcc, html, dash_table
 import pandas as pd
 import plotly.express as px
 #import sys
@@ -67,6 +67,10 @@ graph_hist
  
 hist_fig = px.histogram(graph_hist, x="Stay_length", color="Gender")
 
+##DataTable to change later (its just an example of a table)
+
+table_df = raw_er_admission.loc[:,['Gender','Age_band','Stay_length','Admission_ALL']].head()
+
 ## Create the TreeMap
 
 Treemap_fig = px.treemap(
@@ -97,7 +101,7 @@ maria = 'assets/Maria.png'
 jeyson = 'assets/Jeyson.png'
 juan = 'assets/Juan.png'
 luis = 'assets/foto team.png'
-#cristian = pending
+cristian = 'assets/Cristian.png' 
 
 ##Sidebar ##
 
@@ -185,8 +189,8 @@ def render_page_content(pathname):
     if pathname == "/":
         return html.Div([
             dbc.Row([
-                dbc.Col("Key Variable Inputs",md=4),
-                dbc.Col("Model Output", md=8)
+                dbc.Col("Key Variable Inputs",md=6),
+                dbc.Col("Model Output", md=6)
             ]),
             html.Br(),
             dbc.Row([
@@ -199,10 +203,14 @@ def render_page_content(pathname):
                                           {'label': 'Option B', 'value': 'Option B'}])),
                     dbc.Row(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
                                 options =[{'label':'Option A','value':'Optiona A'},
-                                          {'label': 'Option B', 'value': 'Option B'}])),                                                                                                                      
-                                          ],md=4),
-                dbc.Col( dcc.Graph(figure=Treemap_fig, id="Treemap"), md=8)
+                                          {'label': 'Option B', 'value': 'Option B'}])),
+                    html.Br(),
+                    dbc.Row(dash_table.DataTable(table_df.to_dict('records'), [{"name": i, "id": i} for i in table_df.columns]))                                                                                                                      
+                                          ],md=6),
+                dbc.Col( dcc.Graph(figure=Treemap_fig, id="Treemap"), md=6)
             ]),
+            html.Br(),
+            
         ]
                     )
     elif pathname == "/page-1":
@@ -275,7 +283,7 @@ def render_page_content(pathname):
                         [
                         html.Div("Cristian Rodriguez"),
                         html.Br(),
-                        #html.Img(src = daniel,style={'height':'60%', 'width':'10%'})
+                        html.Img(src = cristian,style={'height':'60%', 'width':'10%'})
                             ]), 
                         ]
                       )  
@@ -289,7 +297,6 @@ def render_page_content(pathname):
             html.P(f"The pathname {pathname} was not recognised..."),
         ]
     )
-
 
 if __name__ == "__main__":
     app.run_server(port=8888)
