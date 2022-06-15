@@ -15,6 +15,9 @@ import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html
 import pandas as pd
 import plotly.express as px
+#import sys
+#sys.path.insert(1, '../../src/visualization')
+#import visualize
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -42,8 +45,27 @@ CONTENT_STYLE = {
 # Load the data and create the map
 ################################################################################################
 
-df = pd.read_csv('data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
-raw_er_admission = pd.read_excel('data/raw/er_admission.xlsx', sheet_name = 'Data')
+df = pd.read_csv('../../data/raw/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
+raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
+
+##Create ScatterPlot of variable correlations:
+
+#corr_variables = visualize.correlation_plot(raw_er_admission)
+
+correlations = raw_er_admission.corr()
+corr_variables = px.imshow(correlations, text_auto = True, aspect = 'auto')
+
+corr_variables.update_layout(
+    title="Variables Correlation"
+)
+
+##Histogram for admitted and stay length
+
+graph_hist = raw_er_admission.loc[:,['Stay_length','Gender']]
+graph_hist['Gender'] = graph_hist['Gender'].apply(lambda x: "Female" if(x == 1) else "Male")
+graph_hist
+ 
+hist_fig = px.histogram(graph_hist, x="Stay_length", color="Gender")
 
 ## Create the TreeMap
 
@@ -166,10 +188,19 @@ def render_page_content(pathname):
                 dbc.Col("Key Variable Inputs",md=4),
                 dbc.Col("Model Output", md=8)
             ]),
+            html.Br(),
             dbc.Row([
-                dbc.Col(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
+                dbc.Col([
+                    dbc.Row(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
                                 options =[{'label':'Option A','value':'Optiona A'},
-                                          {'label': 'Option B', 'value': 'Option B'}]),md=4),
+                                          {'label': 'Option B', 'value': 'Option B'}])),
+                    dbc.Row(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
+                                options =[{'label':'Option A','value':'Optiona A'},
+                                          {'label': 'Option B', 'value': 'Option B'}])),
+                    dbc.Row(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
+                                options =[{'label':'Option A','value':'Optiona A'},
+                                          {'label': 'Option B', 'value': 'Option B'}])),                                                                                                                      
+                                          ],md=4),
                 dbc.Col( dcc.Graph(figure=Treemap_fig, id="Treemap"), md=8)
             ]),
         ]
@@ -195,12 +226,10 @@ def render_page_content(pathname):
          return html.Div([
             dbc.Row([
                 dbc.Col(dbc.Col(dcc.Graph(figure=Scatter_fig, id="Scatter")),md=6),
-                dbc.Col("Model Output", md=6)
+                dbc.Col(dbc.Col(dcc.Graph(figure=corr_variables, id="Correlation")),md=6)
             ]),
             dbc.Row([
-                dbc.Col(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
-                                options =[{'label':'Option A','value':'Optiona A'},
-                                          {'label': 'Option B', 'value': 'Option B'}]),md=6),
+                dbc.Col(dbc.Col(dcc.Graph(figure=hist_fig)),md=6),
                 dbc.Col(dcc.Graph(figure=Treemap_fig, id="Treemap"), md=6)
             ]),
         ]
