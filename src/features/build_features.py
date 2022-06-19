@@ -34,3 +34,17 @@ X_train_stay, X_test_stay, y_train_stay, y_test_stay = train_test_split(adm_dumm
 X_train_adm, X_test_adm, y_train_adm, y_test_adm = train_test_split(adm_dummies.drop(['Admission_ALL', 'Stay_length'], axis = 1), 
                                                                         adm_dummies["Admission_ALL"], test_size=0.2, random_state=1337,
                                                                         stratify=adm_dummies["Admission_ALL"])
+
+# %% write Stay data
+
+X_train_stay.to_pickle("../../data/processed/stay/X_train_stay.pickle")
+X_test_stay.to_pickle("../../data/processed/stay/X_test_stay.pickle")
+y_train_stay.to_pickle("../../data/processed/stay/y_train_stay.pickle")
+y_test_stay.to_pickle("../../data/processed/stay/y_test_stay.pickle")
+
+# %% write Admission data
+
+X_train_adm.to_pickle("../../data/processed/admission/X_train_adm.pickle")
+X_test_adm.to_pickle("../../data/processed/admission/X_test_adm.pickle")
+y_train_adm.to_pickle("../../data/processed/admission/y_train_adm.pickle")
+y_test_adm.to_pickle("../../data/processed/admission/y_test_adm.pickle")
