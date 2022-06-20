@@ -79,5 +79,7 @@ def run_exps(x_train: pd.DataFrame , y_train: pd.DataFrame, x_test: pd.DataFrame
 
 models = run_exps(X_train, y_train, X_test, y_test)
 
+models[0].groupby('model')['test_roc_auc', 'test_sensitivity', 'test_specificity'].mean()
+
 with open("../../models/admission/many_models_adm_1.pickle", "wb") as fp:   #Pickling
     pickle.dump(models, fp)
