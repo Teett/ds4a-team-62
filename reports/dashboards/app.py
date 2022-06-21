@@ -3,14 +3,18 @@ import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html, dash_table
 import pandas as pd
 import plotly.express as px
+import dash_labs as dl
 
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, plugins=[dl.plugins.pages], external_stylesheets=[dbc.themes.FLATLY],) #requests_pathname_prefix=request_path_prefix
+#app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+
 
 # the style arguments for the sidebar. We use position:fixed and a fixed width
+
 SIDEBAR_STYLE = {
     "position": "fixed",
-    "top": 0,
+    "top": 130,
     "left": 0,
     "bottom": 0,
     "width": "16rem",
@@ -78,40 +82,54 @@ Scatter_fig.update_layout(
     title="Sales vs. Profit in selected states", paper_bgcolor="#F8F9F9"
 )
 
-##Images paths ##
+#Top menu, items get from all pages registered with plugin.pages
 
-image_path = 'assets/DS4A.png'
-team_image_path = 'assets/DS4A Team 62.png'
-daniel = 'assets/Daniel.png'
-maria = 'assets/Maria.png'
-jeyson = 'assets/Jeyson.png'
-juan = 'assets/Juan.png'
-luis = 'assets/foto team.png'
-cristian = 'assets/Cristian.png' 
+navbar = dbc.NavbarSimple([
+
+    dbc.NavItem(dbc.NavLink( "Home", href='/')),
+    dbc.NavItem(dbc.NavLink( "Dashboard", href='/dashboard')),
+    dbc.NavItem(dbc.NavLink( "The Model", href="/the-model")),
+    dbc.DropdownMenu(
+        [
+
+            dbc.DropdownMenuItem(page["name"], href=page["path"])
+            for page in dash.page_registry.values()
+            if page["module"] != "pages.not_found_404"
+        ],
+        nav=True,
+        label="Descriptive Analytics",
+    ),
+    dbc.NavItem(dbc.NavLink("The Team", href="/the-team")),
+    ],
+    brand="DS4A Project - Team 62",
+    color="primary",
+    dark=True,
+    className="mb-2",
+)
 
 ##Sidebar ##
 
-sidebar = html.Div(
-    [
-        #html.H2("Sidebar", className="display-4"),
-        html.Img(src = image_path,style={'height':'23%', 'width':'82%'}),
-        html.Hr(),
-        html.P(
-            "A simple sidebar layout with navigation links", className="lead"
-        ),
-        dbc.Nav(
-            [
-                dbc.NavLink("Dashboard", href="/", active="exact"),
-                dbc.NavLink("The Model", href="/page-1", active="exact"),
-                dbc.NavLink("Descriptive analytics", href="/page-2", active="exact"),
-                dbc.NavLink("The Team", href="/page-3", active="exact"),
-            ],
-            vertical=True,
-            pills=True,
-        ),
-    ],
-    style=SIDEBAR_STYLE,
-)
+# sidebar = html.Div(
+#     [
+#         #html.H2("Sidebar", className="display-4"),
+#         html.Img(src = image_path,style={'height':'23%', 'width':'82%'}),
+#         html.Hr(),
+#         html.P(
+#             "A simple sidebar layout with navigation links", className="lead"
+#         ),
+#         dbc.Nav(
+#             [
+#                 dbc.NavLink("Dashboard", href="/", active="exact"),
+#                 dbc.NavLink("The Model", href="/page-1", active="exact"),
+#                 dbc.NavLink("Descriptive analytics", href="/page-2", active="exact"),
+#                 dbc.NavLink("The Team", href="/page-3", active="exact"),
+#             ],
+#             vertical=True,
+#             pills=True,
+#         ),
+#     ],
+#     style=SIDEBAR_STYLE,
+# )
 
 ## Content###
 
@@ -154,18 +172,21 @@ cards = [
 ### Layout####
 app.layout = html.Div(
     [
-    dcc.Location(id="url"),
-    html.Div(
-        [
-            dbc.Row(
-                [
-                    html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL',style={'textAlign': 'center'}),
-                    html.Hr()
-                    ]
-                )
-        ]),
-    dbc.Col(sidebar),
-    dbc.Col(content)
+    dbc.Row(
+            [
+                html.H1('CLINICAL OUTCOME RISK ASSESTMENT TOOL',style={'textAlign': 'center'}),
+                html.Hr()
+                ],
+            className = 'title'
+            ),
+    dbc.Container(
+    [
+        navbar,
+        dl.plugins.page_container,
+    ],
+    className="dbc",
+    fluid=True,
+    ),
     ]
 )
 
