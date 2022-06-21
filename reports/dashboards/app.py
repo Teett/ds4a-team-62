@@ -6,7 +6,7 @@ import plotly.express as px
 import dash_labs as dl
 
 
-app = dash.Dash(__name__, plugins=[dl.plugins.pages], external_stylesheets=[dbc.themes.FLATLY],) #requests_pathname_prefix=request_path_prefix
+app = dash.Dash(__name__, plugins=[dl.plugins.pages], external_stylesheets=[dbc.themes.FLATLY],)
 #app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 
