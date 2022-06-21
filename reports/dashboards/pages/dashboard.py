@@ -15,6 +15,7 @@ register_page(__name__, path='/dashboard')
 # kpi3 = kpibadge('325', 'Total transacciones')
 # kpi4 = kpibadge('2122','Total User')
 
+
 raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
 
 ed_bed = raw_er_admission['ED bed occupancy'].mean()
