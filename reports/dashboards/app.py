@@ -1,23 +1,9 @@
-"""
-This app creates a simple sidebar layout using inline style arguments and the
-dbc.Nav component.
-
-dcc.Location is used to track the current location, and a callback uses the
-current location to render the appropriate page content. The active prop of
-each NavLink is set automatically according to the current pathname. To use
-this feature you must install dash-bootstrap-components >= 0.11.0.
-
-For more details on building multi-page Dash applications, check out the Dash
-documentation: https://dash.plot.ly/urls
-"""
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html, dash_table
 import pandas as pd
 import plotly.express as px
-#import sys
-#sys.path.insert(1, '../../src/visualization')
-#import visualize
+
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
