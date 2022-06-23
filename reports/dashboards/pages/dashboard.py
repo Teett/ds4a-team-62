@@ -1,9 +1,19 @@
 #libraries
+
 import dash
-from dash import Dash, html , dcc
+from dash import Dash, html , dcc, dash_table, Input, Output, callback, State
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash_labs.plugins import register_page
+import base64
+import datetime
+import io
+import plotly.graph_objs as go
+import plotly.express as px
+
+#Recall app
+from app import app
+
 
 # dash-labs plugin call, menu name and route
 register_page(__name__, path='/dashboard')
@@ -60,8 +70,11 @@ cards = [
     ),
 ]
 
+colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#000000"}
+
 layout = html.Div(
-    [
+    [   html.Div('Hola Mundo'),
+        html.Hr(),
         dcc.Upload(
             id="upload-data",
             children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
@@ -80,5 +93,86 @@ layout = html.Div(
         ),
         dbc.Row([dbc.Col(card) for card in cards]),
         html.Br(),
+        html.Br(),
+        #dcc.Graph(id="Mygraph"),
+        #html.Div(id="output-data-upload"),
+        html.Div(id='output-div'),
+        html.Div(id='output-div-2'),
+        html.Div(id='output-datatable'),
     ]
 )
+
+def parse_contents(contents, filename, date):
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            df = pd.read_csv(
+                io.StringIO(decoded.decode('utf-8')))
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(io.BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+    return html.Div([
+        html.H5(filename),
+        html.H6(datetime.datetime.fromtimestamp(date)),
+        html.P("Inset X axis data"),
+        dcc.Dropdown(id='xaxis-data',
+                     options=[{'label':x, 'value':x} for x in df.columns]),
+        html.P("Inset Y axis data"),
+        dcc.Dropdown(id='yaxis-data',
+                     options=[{'label':x, 'value':x} for x in df.columns]),
+        html.Button(id="submit-button", children="Create Graph"),
+        html.Hr(),
+
+        dash_table.DataTable(
+            data=df.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in df.columns],
+            page_size=15
+        ),
+        dcc.Store(id='stored-data', data=df.to_dict('records')),
+
+        html.Hr(),  # horizontal line
+
+        # For debugging, display the raw contents provided by the web browser
+        html.Div('Raw Content'),
+        html.Pre(contents[0:200] + '...', style={
+            'whiteSpace': 'pre-wrap',
+            'wordBreak': 'break-all'
+        })
+    ])
+
+
+@app.callback(Output('output-datatable', 'children'),
+              Input('upload-data', 'contents'),
+              State('upload-data', 'filename'),
+              State('upload-data', 'last_modified'))
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            parse_contents(c, n, d) for c, n, d in
+            zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
+
+
+@app.callback(Output('output-div', 'children'),
+              Input('stored-data','data'))
+
+def make_graphs(data):
+    bar_fig = px.bar(data, x= 'Dimension')
+    # print(data)
+    return dcc.Graph(figure=bar_fig)
+
+@app.callback(Output('output-div-2', 'children'),
+              Input('stored-data','data'))
+def make_graphs_2(data):
+    bar_fig = px.bar(data, x= 'Make')
+    # print(data)
+    return dcc.Graph(figure=bar_fig)
