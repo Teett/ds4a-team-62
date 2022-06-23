@@ -12,7 +12,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 
 #Recall app
-from app import app
+#from app import app
 
 
 # dash-labs plugin call, menu name and route
@@ -73,9 +73,7 @@ cards = [
 colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#000000"}
 
 layout = html.Div(
-    [   html.Div('Hola Mundo'),
-        html.Hr(),
-        dcc.Upload(
+    [   dcc.Upload(
             id="upload-data",
             children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
             style={
@@ -96,6 +94,7 @@ layout = html.Div(
         html.Br(),
         #dcc.Graph(id="Mygraph"),
         #html.Div(id="output-data-upload"),
+
         html.Div(id='output-div'),
         html.Div(id='output-div-2'),
         html.Div(id='output-datatable'),
@@ -150,7 +149,7 @@ def parse_contents(contents, filename, date):
     ])
 
 
-@app.callback(Output('output-datatable', 'children'),
+@callback(Output('output-datatable', 'children'),
               Input('upload-data', 'contents'),
               State('upload-data', 'filename'),
               State('upload-data', 'last_modified'))
@@ -162,7 +161,7 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
         return children
 
 
-@app.callback(Output('output-div', 'children'),
+@callback(Output('output-div', 'children'),
               Input('stored-data','data'))
 
 def make_graphs(data):
@@ -170,7 +169,7 @@ def make_graphs(data):
     # print(data)
     return dcc.Graph(figure=bar_fig)
 
-@app.callback(Output('output-div-2', 'children'),
+@callback(Output('output-div-2', 'children'),
               Input('stored-data','data'))
 def make_graphs_2(data):
     bar_fig = px.bar(data, x= 'Make')

@@ -135,40 +135,6 @@ navbar = dbc.NavbarSimple([
 
 content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-## Card components ##
-
-cards = [
-    dbc.Card(
-        [
-            #html.H2(f"{train_acc*100:.2f}%", className="card-title"),
-            html.H2(f"95.59%", className="card-title"),
-            html.P("Model Training Accuracy", className="card-text"),
-        ],
-        body=True,
-        color="light",
-    ),
-    dbc.Card(
-        [
-            #html.H2(f"{test_acc*100:.2f}%", className="card-title"),
-            html.H2(f"80.23%", className="card-title"),
-            html.P("Model Test Accuracy", className="card-text"),
-        ],
-        body=True,
-        color="dark",
-        inverse=True,
-    ),
-    dbc.Card(
-        [
-            #html.H2(f"{dfTrain.shape[0]} / {dfTest.shape[0]}", className="card-title"),
-            html.H2(f" 13.529 / 6.208", className="card-title"),
-            html.P("Train / Test Split", className="card-text"),
-        ],
-        body=True,
-        color="primary",
-        inverse=True,
-    ),
-]
-
 ### Layout####
 app.layout = html.Div(
     [
@@ -186,7 +152,7 @@ app.layout = html.Div(
     ],
     className="dbc",
     fluid=True,
-    ),    
+    ),
     ]
 )
 
