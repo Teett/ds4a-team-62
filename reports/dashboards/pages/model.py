@@ -43,19 +43,21 @@ cards = [
 
 layout = html.Div(
     [
-        html.P("Choose the model to analyze:"),
-        dcc.Dropdown(
-                    id="ML-models",
-                    options=[
-                        {"label": "Stay Length", "value": "stay_length"},
-                        {"label": "Admission", "value": "admission"},
-                    ],
-                    value=['stay_length_regression', 'admission_classification'],
-                    #multi = True
-                ),
-        html.Br(),
-        dbc.Row([dbc.Col(card) for card in cards]),
-        html.Br(),
+        # html.P("Choose the model to analyze:"),
+        # html.P('Hola Mundo'),
+        # html.Hr(),
+        # dcc.Dropdown(
+        #             id="ML-models",
+        #             options=[
+        #                 {"label": "Stay Length", "value": "stay_length"},
+        #                 {"label": "Admission", "value": "admission"},
+        #             ],
+        #             value=['stay_length_regression', 'admission_classification'],
+        #             #multi = True
+        #         ),
+        # html.Br(),
+        # dbc.Row([dbc.Col(card) for card in cards]),
+        # html.Br(),
         #dcc.Graph(id="heatmaps-graph"),
-    ], className='card'
+    ], #className='card'
 )
