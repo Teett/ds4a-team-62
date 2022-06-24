@@ -34,6 +34,12 @@ def run_exps(x_train: pd.DataFrame , y_train: pd.DataFrame, x_test: pd.DataFrame
     classification_reports = []
     models = [
             ('LogReg', LogisticRegression(max_iter = 500)),
+            ('ElasticNet', LogisticRegression(penalty='elasticnet', 
+                                              solver='saga', l1_ratio=0.5, max_iter=1500)),
+            ('Lasso', LogisticRegression(penalty='elasticnet', 
+                                              solver='saga', l1_ratio=1, max_iter=1500)),
+            ('Ridge', LogisticRegression(penalty='elasticnet', 
+                                              solver='saga', l1_ratio=0, max_iter=1500)),
             ('RF', RandomForestClassifier()),
             ('KNN', KNeighborsClassifier()),
             ('SVM', SVC()), 
@@ -78,8 +84,7 @@ def run_exps(x_train: pd.DataFrame , y_train: pd.DataFrame, x_test: pd.DataFrame
     return [final, confusion_matrices, classification_reports]
 
 models = run_exps(X_train, y_train, X_test, y_test)
-
 models[0].groupby('model')['test_roc_auc', 'test_sensitivity', 'test_specificity'].mean()
-
+models[0].groupby('model')['fit_time'].mean()
 with open("../../models/admission/many_models_adm_1.pickle", "wb") as fp:   #Pickling
     pickle.dump(models, fp)
