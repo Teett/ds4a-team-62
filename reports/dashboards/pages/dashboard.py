@@ -11,9 +11,6 @@ import io
 import plotly.graph_objs as go
 import plotly.express as px
 
-#Recall app
-#from app import app
-
 
 # dash-labs plugin call, menu name and route
 register_page(__name__, path='/dashboard')
@@ -92,12 +89,15 @@ layout = html.Div(
         dbc.Row([dbc.Col(card) for card in cards]),
         html.Br(),
         html.Br(),
-        #dcc.Graph(id="Mygraph"),
-        #html.Div(id="output-data-upload"),
-
-        html.Div(id='output-div'),
-        html.Div(id='output-div-2'),
         html.Div(id='output-datatable'),
+        dbc.Container([
+            dbc.Row([
+                dbc.Col(id='output-div',   style = {'width': '50%'}),
+                dbc.Col(id='output-div-2', style = {'width': '50%'}),
+                    ]
+                )
+            ]
+        )        
     ]
 )
 
@@ -122,14 +122,14 @@ def parse_contents(contents, filename, date):
     return html.Div([
         html.H5(filename),
         html.H6(datetime.datetime.fromtimestamp(date)),
-        html.P("Inset X axis data"),
-        dcc.Dropdown(id='xaxis-data',
-                     options=[{'label':x, 'value':x} for x in df.columns]),
-        html.P("Inset Y axis data"),
-        dcc.Dropdown(id='yaxis-data',
-                     options=[{'label':x, 'value':x} for x in df.columns]),
-        html.Button(id="submit-button", children="Create Graph"),
-        html.Hr(),
+        # html.P("Inset X axis data"),
+        # dcc.Dropdown(id='xaxis-data',
+        #              options=[{'label':x, 'value':x} for x in df.columns]),
+        # html.P("Inset Y axis data"),
+        # dcc.Dropdown(id='yaxis-data',
+        #              options=[{'label':x, 'value':x} for x in df.columns]),
+        # html.Button(id="submit-button", children="Create Graph"),
+        # html.Hr(),
 
         dash_table.DataTable(
             data=df.to_dict('records'),
