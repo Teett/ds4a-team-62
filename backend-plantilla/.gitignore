@@ -1,0 +1,12 @@
+.env
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+.ipynb
+
+# vscode
+.vscode
