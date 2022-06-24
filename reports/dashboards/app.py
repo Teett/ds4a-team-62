@@ -88,17 +88,18 @@ navbar = dbc.NavbarSimple([
 
     dbc.NavItem(dbc.NavLink( "Home", href='/')),
     dbc.NavItem(dbc.NavLink( "Dashboard", href='/dashboard')),
+    dbc.NavItem(dbc.NavLink( "Descriptive Analytics", href="/analytics")),
     dbc.NavItem(dbc.NavLink( "The Model", href="/the-model")),
-    dbc.DropdownMenu(
-        [
+    # dbc.DropdownMenu(
+    #     [
 
-            dbc.DropdownMenuItem(page["name"], href=page["path"])
-            for page in dash.page_registry.values()
-            if page["module"] != "pages.not_found_404"
-        ],
-        nav=True,
-        label="Descriptive Analytics",
-    ),
+    #         dbc.DropdownMenuItem(page["name"], href=page["path"])
+    #         for page in dash.page_registry.values()
+    #         if page["module"] != "pages.not_found_404"
+    #     ],
+    #     nav=True,
+    #     label="Descriptive Analytics",
+    # ),
     dbc.NavItem(dbc.NavLink("The Team", href="/the-team")),
     ],
     brand="DS4A Project - Team 62",
@@ -106,30 +107,6 @@ navbar = dbc.NavbarSimple([
     dark=True,
     className="mb-2",
 )
-
-##Sidebar ##
-
-# sidebar = html.Div(
-#     [
-#         #html.H2("Sidebar", className="display-4"),
-#         html.Img(src = image_path,style={'height':'23%', 'width':'82%'}),
-#         html.Hr(),
-#         html.P(
-#             "A simple sidebar layout with navigation links", className="lead"
-#         ),
-#         dbc.Nav(
-#             [
-#                 dbc.NavLink("Dashboard", href="/", active="exact"),
-#                 dbc.NavLink("The Model", href="/page-1", active="exact"),
-#                 dbc.NavLink("Descriptive analytics", href="/page-2", active="exact"),
-#                 dbc.NavLink("The Team", href="/page-3", active="exact"),
-#             ],
-#             vertical=True,
-#             pills=True,
-#         ),
-#     ],
-#     style=SIDEBAR_STYLE,
-# )
 
 ## Content###
 
@@ -155,121 +132,6 @@ app.layout = html.Div(
     ),
     ]
 )
-
-# @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-
-# def render_page_content(pathname):
-#     if pathname == "/":
-#         return html.Div([
-#             dbc.Row([
-#                 dbc.Col("Key Variable Inputs",md=6),
-#                 dbc.Col("Model Output", md=6)
-#             ]),
-#             html.Br(),
-#             dbc.Row([
-#                 dbc.Col([
-#                     dbc.Row(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
-#                                 options =[{'label':'Option A','value':'Optiona A'},
-#                                           {'label': 'Option B', 'value': 'Option B'}])),
-#                     dbc.Row(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
-#                                 options =[{'label':'Option A','value':'Optiona A'},
-#                                           {'label': 'Option B', 'value': 'Option B'}])),
-#                     dbc.Row(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
-#                                 options =[{'label':'Option A','value':'Optiona A'},
-#                                           {'label': 'Option B', 'value': 'Option B'}])),
-#                     html.Br(),
-#                     dbc.Row(dash_table.DataTable(table_df.to_dict('records'), [{"name": i, "id": i} for i in table_df.columns]))                                                                                                                      
-#                                           ],md=6),
-#                 dbc.Col( dcc.Graph(figure=Treemap_fig, id="Treemap"), md=6)
-#             ]),
-#             html.Br(),
-            
-#         ]
-#                     )
-#     elif pathname == "/page-1":
-#         return html.Div([
-
-#             dbc.Row([dbc.Col(card) for card in cards]),
-#             html.Br(),
-#             dbc.Row([
-#                 dbc.Col("Key Variable Inputs",md=6),
-#                 dbc.Col("Model Output", md=6)
-#             ]),
-#             dbc.Row([
-#                 dbc.Col(dcc.Dropdown(id='my_first_drop', placeholder = 'first_drop',
-#                                 options =[{'label':'Option A','value':'Optiona A'},
-#                                           {'label': 'Option B', 'value': 'Option B'}]),md=6),
-#                 dbc.Col( dcc.Graph(figure=Treemap_fig, id="Treemap"), md=6)
-#             ]),
-#         ]
-#                     )
-#     elif pathname == "/page-2":
-#          return html.Div([
-#             dbc.Row([
-#                 dbc.Col(dbc.Col(dcc.Graph(figure=Scatter_fig, id="Scatter")),md=6),
-#                 dbc.Col(dbc.Col(dcc.Graph(figure=corr_variables, id="Correlation")),md=6)
-#             ]),
-#             dbc.Row([
-#                 dbc.Col(dbc.Col(dcc.Graph(figure=hist_fig)),md=6),
-#                 dbc.Col(dcc.Graph(figure=Treemap_fig, id="Treemap"), md=6)
-#             ]),
-#         ]
-#                     )
-#     elif pathname == "/page-3":
-#         return html.Div(
-#             [   
-#                 dbc.Row(html.Img(src = team_image_path,style={'height':'50%', 'width':'30%','display': 'block','margin-left': 'auto','margin-right': 'auto'})),
-#                 html.Hr(),
-#                 dbc.Row(
-#                 [
-#                     dbc.Col(
-#                         [
-#                         html.Div("Luis Felipe Serna"),
-#                         html.Br(),
-#                         html.Img(src = luis,style={'height':'60%', 'width':'60%'})
-#                             ]),
-#                     dbc.Col(
-#                         [
-#                         html.Div("Luis Daniel Chavarria"),
-#                         html.Br(),
-#                         html.Img(src = daniel,style={'height':'60%', 'width':'60%'})
-#                             ]),
-#                     dbc.Col(
-#                         [
-#                         html.Div("Maria Paula Alvarez"),
-#                         html.Br(),
-#                         html.Img(src = maria,style={'height':'60%', 'width':'60%'})
-#                             ]),
-#                     dbc.Col(
-#                         [
-#                         html.Div("Juan Barrios"),
-#                         html.Br(),
-#                         html.Img(src = juan,style={'height':'60%', 'width':'60%'})
-#                             ]),                    
-#                     dbc.Col(
-#                         [
-#                         html.Div("Jeyson Guzman"),
-#                         html.Br(),
-#                         html.Img(src = jeyson,style={'height':'60%', 'width':'60%'})
-#                             ]),
-#                     dbc.Col(
-#                         [
-#                         html.Div("Cristian Rodriguez"),
-#                         html.Br(),
-#                         html.Img(src = cristian,style={'height':'60%', 'width':'60%'})
-#                             ]), 
-#                         ]
-#                       )  
-#                     ]
-#                 )
-#     # If the user tries to reach a different page, return a 404 message
-#     return dbc.Jumbotron(
-#         [
-#             html.H1("404: Not found", className="text-danger"),
-#             html.Hr(),
-#             html.P(f"The pathname {pathname} was not recognised..."),
-#         ]
-#     )
 
 if __name__ == "__main__":
     app.run_server(port=8888)
