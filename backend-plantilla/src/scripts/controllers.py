@@ -97,7 +97,7 @@ def insertar_admisions():
     ACSC=jsoncr['ACSC']
     Consultant_on_duty=jsoncr['Consultant_on_duty']
     ED_bed_occupancy=jsoncr['ED bed occupancy']
-    Inpatient_beoccupancy=jsoncr['Inpatient_beoccupancy']
+    Inpatient_beoccupancy=jsoncr['Inpatient_bed_occupancy']
     Arrival_intensity=jsoncr['Arrival intensity']
     LAS_intensity=jsoncr['LAS intensity']
     LWBS_intensity=jsoncr['LWBS intensity']
