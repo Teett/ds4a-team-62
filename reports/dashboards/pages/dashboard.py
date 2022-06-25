@@ -10,6 +10,7 @@ import datetime
 import io
 import plotly.graph_objs as go
 import plotly.express as px
+import requests
 
 
 # dash-labs plugin call, menu name and route
@@ -137,9 +138,9 @@ def parse_contents(contents, filename, date):
             page_size=15
         ),
         dcc.Store(id='stored-data', data=df.to_dict('records')),
+        # print("diccionario",data)
 
         html.Hr(),  # horizontal line
-
         # For debugging, display the raw contents provided by the web browser
         html.Div('Raw Content'),
         html.Pre(contents[0:200] + '...', style={
@@ -165,6 +166,18 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
               Input('stored-data','data'))
 
 def make_graphs(data):
+    print(data[0])
+
+    # url = 'http://localhost:5000/parameters'
+    # myobj = data[0]
+    # x = requests.post(url, json = myobj)
+    # print(x)
+
+    url = 'http://localhost:5000/prueba'
+    x = requests.get(url)
+    print(x)
+    print("json aja ", x.json())
+
     bar_fig = px.bar(data, x= 'Dimension')
     # print(data)
     return dcc.Graph(figure=bar_fig)

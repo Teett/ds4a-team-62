@@ -20,27 +20,11 @@ def prueba():
     serial=[]
     response=''
 
-    try:
-        conn = Connection.connect()
-        cursor=conn.cursor()
-        sql = "select * from public.prueba;"
-        cursor.execute(sql)  # write the first row of data
-        Datos=cursor.fetchall()
-        conn.commit()
-        cursor.close()
-        Connection.closeConnection(conn)
-        for i in Datos:
-            response = {
-                        'id' : i[0],
-                        'nombre': i[1],
-                        }
-        serial.append(response)
-    except:
-        serial="error conexion"
+ 
+    sql = "select * from public.prueba;"
 
-    data={
-        'Respuesta':serial
-    }
+    data = queries.consultaGeneral(sql)
+
     return jsonify(data)
 
 def a():
@@ -55,14 +39,15 @@ def a():
 def parameters():
 
     jsoncr=request.json
-    id=jsoncr['id']
+    id=jsoncr['Make']
 
-    sql="""select * from public.prueba
-            where id = %s;
+    sql="""INSERT INTO public.prueba(
+             nombre)
+            VALUES (%s);
             """
     parameters=(id,)
 
-    data = queries.consultaGeneral(sql,parameters)
+    data = queries.updateOrInsert(sql,parameters)
 
     return jsonify(data)
 
