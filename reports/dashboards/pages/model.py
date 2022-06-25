@@ -43,7 +43,14 @@ cards = [
     ),
 ]
 
-raw_er_admission = pd.read_excel('../../data/processed/admission/app_test_dataset.xlsx', sheet_name = 'Data')
+raw_er_admission = pd.read_excel('../../data/processed/admission/app_test_dataset.xlsx', sheet_name = 'Data',
+                                index_col = None)
+
+raw_er_admission = raw_er_admission.astype({"ACSC": float,
+                                            "Age_band": float,
+                                            "Ethnicity": float,
+                                            "Site": float,
+                                            "IMD_quintile": float})
 
 ################################################################################################
 # Load the model
