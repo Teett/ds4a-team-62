@@ -167,7 +167,7 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
               Input('stored-data','data'))
 
 def make_graphs(data):
-    print(data[0])
+    print(data)
     for dato in data:
         url = 'http://localhost:5000/parameters'
         myobj = dato
