@@ -43,7 +43,7 @@ cards = [
     ),
 ]
 
-raw_er_admission = pd.read_excel('../../data/processed/app_test_dataset.xlsx', sheet_name = 'Data')
+raw_er_admission = pd.read_excel('../../data/processed/admission/app_test_dataset.xlsx', sheet_name = 'Data')
 
 ################################################################################################
 # Load the model
@@ -66,7 +66,7 @@ er_admission = er_admission.dropna()
 adm_dummies = pd.get_dummies(er_admission, 
                             columns=['Site','Age_band','IMD_quintile','Ethnicity', 'ACSC'], 
                             drop_first=True)
-adm_dummies = adm_dummies.drop(['Admission_ALL', 'Stay_length'], axis = 1)
+#adm_dummies = adm_dummies.drop(['Admission_ALL', 'Stay_length'], axis = 1)
 
 # %%
 ################################################################################################
@@ -74,6 +74,8 @@ adm_dummies = adm_dummies.drop(['Admission_ALL', 'Stay_length'], axis = 1)
 ################################################################################################
 y_prob =model.predict_proba(adm_dummies) 
 y_pred = (y_prob[:,1] >= 0.25).astype(int)
+
+print(y_pred)
 
 
 layout = html.Div(
@@ -93,5 +95,6 @@ layout = html.Div(
         dbc.Row([dbc.Col(card) for card in cards]),
         html.Br(),
         dcc.Graph(id="heatmaps-graph"),
+        
     ], className='card'
 )

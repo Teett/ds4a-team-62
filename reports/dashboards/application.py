@@ -5,7 +5,6 @@ import pandas as pd
 import plotly.express as px
 import dash_labs as dl
 import pickle
-from sklearn import predict_proba
 
 
 app = dash.Dash(__name__, plugins=[dl.plugins.pages], external_stylesheets=[dbc.themes.FLATLY],)
