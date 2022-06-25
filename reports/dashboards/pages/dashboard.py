@@ -169,22 +169,23 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 def make_graphs(data):
     print(data)
     for dato in data:
-        url = 'http://localhost:5000/parameters'
+        url = 'http://localhost:5000/insertar_admisions'
         myobj = dato
+        myobj["nombreArchivo"] = "nombre_de_prueba"
         x = requests.post(url, json = myobj)
         print(x)
-
-    url = 'http://localhost:5000/prueba'
-    x = requests.get(url)
+    url = 'http://localhost:5000/consulta_admision_por_nombre'
+    myobj["nombreArchivo"] = "nombre_de_prueba"
+    x = requests.post(url, json = myobj)
     print(x)
     print("json aja ", x.json())
-    bar_fig = px.bar(data, x= 'Dimension')
+    bar_fig = px.bar(data, x= 'Ethnicity')
     # print(data)
     return dcc.Graph(figure=bar_fig)
 
 @callback(Output('output-div-2', 'children'),
               Input('stored-data','data'))
 def make_graphs_2(data):
-    bar_fig = px.bar(data, x= 'Make')
+    bar_fig = px.bar(data, x= 'Gender')
     # print(data)
     return dcc.Graph(figure=bar_fig)
