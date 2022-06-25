@@ -11,6 +11,7 @@ import io
 import plotly.graph_objs as go
 import plotly.express as px
 import requests
+import json
 
 
 # dash-labs plugin call, menu name and route
@@ -167,17 +168,16 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 
 def make_graphs(data):
     print(data[0])
-
-    # url = 'http://localhost:5000/parameters'
-    # myobj = data[0]
-    # x = requests.post(url, json = myobj)
-    # print(x)
+    for dato in data:
+        url = 'http://localhost:5000/parameters'
+        myobj = dato
+        x = requests.post(url, json = myobj)
+        print(x)
 
     url = 'http://localhost:5000/prueba'
     x = requests.get(url)
     print(x)
     print("json aja ", x.json())
-
     bar_fig = px.bar(data, x= 'Dimension')
     # print(data)
     return dcc.Graph(figure=bar_fig)
