@@ -101,16 +101,14 @@ def insertar_admisions():
     Arrival_intensity=jsoncr['Arrival_intensity']
     LAS_intensity=jsoncr['LAS_intensity']
     LWBS_intensity=jsoncr['LWBS_intensity']
-    Stay_length=jsoncr['Stay_length']
     Last_10_mins=jsoncr['Last_10_mins']
-    Admission_ALL=jsoncr['Admission_ALL'] 
     nombreArchivo=jsoncr['nombreArchivo']
 
     sql="""INSERT INTO public.admisions(
-	"Site", "DayWeek_coded", "Shift_coded", "Arr_Amb", "Gender", "Age_band", "IMD_quintile", "Ethnicity", "ACSC", "Consultant_on_duty", "ED bed occupancy", "Inpatient_beoccupancy", "Arrival intensity", "LAS intensity", "LWBS intensity", "Stay_length", "Last_10_mins", "Admission_ALL",  "nombreArchivo")
-	VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+	"Site", "DayWeek_coded", "Shift_coded", "Arr_Amb", "Gender", "Age_band", "IMD_quintile", "Ethnicity", "ACSC", "Consultant_on_duty", "ED bed occupancy", "Inpatient_beoccupancy", "Arrival intensity", "LAS intensity", "LWBS intensity",  "Last_10_mins",   "nombreArchivo")
+	VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """
-    parameters=(Site, DayWeek_coded, Shift_coded, Arr_Amb, Gender, Age_band, IMD_quintile, Ethnicity, ACSC, Consultant_on_duty, ED_bed_occupancy, Inpatient_beoccupancy, Arrival_intensity, LAS_intensity, LWBS_intensity, Stay_length, Last_10_mins, Admission_ALL,  nombreArchivo)
+    parameters=(Site, DayWeek_coded, Shift_coded, Arr_Amb, Gender, Age_band, IMD_quintile, Ethnicity, ACSC, Consultant_on_duty, ED_bed_occupancy, Inpatient_beoccupancy, Arrival_intensity, LAS_intensity, LWBS_intensity,  Last_10_mins,  nombreArchivo)
 
     data = queries.updateOrInsert(sql,parameters)
 
