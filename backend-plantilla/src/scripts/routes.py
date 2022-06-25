@@ -13,3 +13,13 @@ primavera.add_url_rule(
 
 primavera.add_url_rule('/parameters', view_func=controllers.parameters,methods=['POST'])
 
+primavera.add_url_rule('/consulta_admisiones', view_func=controllers.consulta_admisiones,methods=['GET'])
+
+primavera.add_url_rule('/consulta_admisiones_de_hoy', view_func=controllers.consulta_admisiones_de_hoy,methods=['GET'])
+
+primavera.add_url_rule('/consulta_admision_por_nombre', view_func=controllers.consulta_admision_por_nombre,methods=['GET'])
+
+primavera.add_url_rule('/insertar_admisions', view_func=controllers.insertar_admisions,methods=['POST'])
+
+
+
