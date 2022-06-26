@@ -175,7 +175,7 @@ def make_graphs(data):
         x = requests.post(url, json = myobj)
         print(x)
     url = 'http://localhost:5000/consulta_admision_por_nombre'
-    myobj["nombreArchivo"] = "nombre_de_prueba"
+    myobj["nombre"] = "nombre_de_prueba"
     x = requests.post(url, json = myobj)
     print(x)
     print("json aja ", x.json())
