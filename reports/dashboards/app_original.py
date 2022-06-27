@@ -4,6 +4,7 @@ from dash import Input, Output, dcc, html, dash_table
 import pandas as pd
 import plotly.express as px
 import dash_labs as dl
+import pickle
 
 
 app = dash.Dash(__name__, plugins=[dl.plugins.pages], external_stylesheets=[dbc.themes.FLATLY],)
@@ -30,6 +31,7 @@ CONTENT_STYLE = {
     "margin-right": "2rem",
     "padding": "2rem 1rem",
 }
+
 
 ################################################################################################
 # Load the data and create the map
