@@ -15,7 +15,7 @@ import json
 
 
 # dash-labs plugin call, menu name and route
-register_page(__name__, path='/dashboard-test')
+register_page(__name__, path='/dashboard')
 
 # from components.kpi.kpibadge import kpibadge
 
