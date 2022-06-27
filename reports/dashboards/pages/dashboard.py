@@ -15,7 +15,7 @@ import json
 
 
 # dash-labs plugin call, menu name and route
-register_page(__name__, path='/dashboard')
+register_page(__name__, path='/dashboard-test')
 
 # from components.kpi.kpibadge import kpibadge
 
@@ -125,15 +125,6 @@ def parse_contents(contents, filename, date):
     return html.Div([
         html.H5(filename),
         html.H6(datetime.datetime.fromtimestamp(date)),
-        dbc.Container([
-        dbc.Row([
-            html.Button(id="submit-button", children="Save Data in Database",style = {'width': '50%'}),
-            html.Button(id="submit-button-2", children="Generate Insights"  ,style = {'width': '50%'}),
-                    ]
-                )
-            ]
-        ),   
-        
         # html.P("Inset X axis data"),
         # dcc.Dropdown(id='xaxis-data',
         #              options=[{'label':x, 'value':x} for x in df.columns]),
@@ -174,8 +165,7 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 
 
 @callback(Output('output-database', 'children'),
-          Input('submit-button','n_clicks'),
-          State('stored-data','data'))
+              Input('stored-data','data'))
 def save_in_db(data):
     print(data)
     for dato in data:
@@ -200,16 +190,14 @@ def save_in_db(data):
 
 
 @callback(Output('output-div', 'children'),
-          Input('submit-button-2','n_clicks'),
-          State('stored-data','data'))
+              Input('stored-data','data'))
 def make_graphs(data):
     bar_fig = px.bar(data, x= 'DayWeek_coded')
     # print(data)
     return dcc.Graph(figure=bar_fig)
-
-@callback(Output('output-div', 'children'),
-          Input('submit-button-2','n_clicks'),
-          State('stored-data','data'))
+    
+@callback(Output('output-div-2', 'children'),
+              Input('stored-data','data'))
 def make_graphs_2(data):
     bar_fig = px.bar(data, x= 'Gender')
     # print(data)
