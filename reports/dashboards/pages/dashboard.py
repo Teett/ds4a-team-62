@@ -167,6 +167,7 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
               Input('stored-data','data'))
 
 def make_graphs(data):
+
     print(data)
     for dato in data:
         url = 'http://localhost:5000/insertar_admisions'
@@ -174,14 +175,28 @@ def make_graphs(data):
         myobj["nombreArchivo"] = "nombre_de_prueba"
         x = requests.post(url, json = myobj)
         print(x)
-    url = 'http://localhost:5000/consulta_admision_por_nombre'
-    myobj["nombre"] = "nombre_de_prueba"
-    x = requests.post(url, json = myobj)
-    print(x)
-    print("json aja ", x.json())
+    
+    # url = 'http://localhost:5000/consulta_admision_por_nombre'
+    # myobj["nombre"] = "nombre_de_prueba"
+    # x = requests.post(url, json = myobj)
+    # print(x)
+    # print("json aja ", x.json())
     bar_fig = px.bar(data, x= 'Ethnicity')
     # print(data)
     return dcc.Graph(figure=bar_fig)
+
+    ###### Send chunks of data instead of 1 by 1 #####
+
+    # url = 'http://localhost:5000/insertar_admisions'
+    # data = pd.DataFrame(data)
+    # data['nombreArchivo'] = 'nombre_de_prueba'
+    # data = data.to_dict('records')
+    # chunks = [data[x:x+10] for x in range(0, len(data), 30)]
+    # for i, chunk in enumerate(chunks):
+    #     r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
+    #     assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
+    #     print(f'total processed chunk {i+1}/{len(chunks)}')
+
 
 @callback(Output('output-div-2', 'children'),
               Input('stored-data','data'))
