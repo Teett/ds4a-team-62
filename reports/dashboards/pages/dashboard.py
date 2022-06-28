@@ -215,31 +215,8 @@ def save_in_db(n, data):
     #     print(f'total processed chunk {i+1}/{len(chunks)}')
 
 
-@callback(Output('output-datatable', 'children'),
-          Input('read-button','n_clicks'),
-          State('stored-data','data'))
-def read_db (n):
-    if n is None:
-        return dash.no_update
-    else: 
-        url = 'http://localhost:5000/consulta_admision_por_nombre'
-        myobj["nombre"] = "nombre_de_prueba"
-        response = requests.post(url, json = myobj)
-        print(response)
-        print("json aja ", response.json())
-        response = response.json()
-        raw_er_admission = pd.DataFrame.from_dict(data = response['Respuesta'])
-        raw_er_admission.drop(['Stay_length','Admission_ALL','createdAt','currentDate','id','nombreArchivo','updatedAt'], axis = 1, inplace = True)
-        raw_er_admission.rename(columns = {'Inpatient_beoccupancy': 'Inpatient_bed_occupancy'}, inplace = True)
-        return dash_table.DataTable(
-            data=raw_er_admission.to_dict('records'),
-            columns=[{'name': i, 'id': i} for i in raw_er_admission.columns],
-            page_size=15
-        )
-
-
 @callback(Output('output-div', 'children'),
-              Input('stored-data','data'))
+              State('stored-data','data'))
 def make_graphs(data):
     bar_fig = px.bar(data, x= 'DayWeek_coded')
     # print(data)
@@ -251,5 +228,48 @@ def make_graphs_2(data):
     bar_fig = px.bar(data, x= 'Gender')
     # print(data)
     return dcc.Graph(figure=bar_fig)
+
+
+@callback(Output('output-datatable', 'children'),
+          Input('read-button','n_clicks'))
+def read_db (n):
+    if n is None:
+        return dash.no_update
+    else: 
+        url = 'http://localhost:5000/consulta_admision_por_nombre'
+        
+        myobj = {'ACSC': 'Search_Template',
+        'Age_band': 'Search_Template',
+        'Arr_Amb': 'Search_Template',
+        'Arrival intensity': 'Search_Template',
+        'Consultant_on_duty': 'Search_Template',
+        'DayWeek_coded': 'Search_Template',
+        'ED bed occupancy': 'Search_Template',
+        'Ethnicity': 'Search_Template',
+        'Gender': 'Search_Template',
+        'IMD_quintile': 'Search_Template',
+        'Inpatient_bed_occupancy': 'Search_Template',
+        'LAS intensity': 'Search_Template',
+        'LWBS intensity': 'Search_Template',
+        'Last_10_mins': 'Search_Template',
+        'Shift_coded': 'Search_Template',
+        'Site': 'Search_Template'
+        }
+        myobj["nombre"] = "nombre_de_prueba"
+        response = requests.post(url, json = myobj)
+        print(response)
+        print("json aja ", response.json())
+        response = response.json()
+        raw_er_admission = pd.DataFrame.from_dict(data = response['Respuesta'])
+        #raw_er_admission.drop(['Stay_length','Admission_ALL','createdAt','currentDate','id','nombreArchivo','updatedAt'], axis = 1, inplace = True)
+        raw_er_admission.rename(columns = {'Inpatient_beoccupancy': 'Inpatient_bed_occupancy'}, inplace = True)
+        return html.Div(
+            dash_table.DataTable(
+            data=raw_er_admission.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in raw_er_admission.columns],
+            page_size=15)
+        )
+
+
 
 
