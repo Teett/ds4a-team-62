@@ -32,25 +32,6 @@ arrival_intensity = raw_er_admission['Arrival intensity'].mean()
 las_intensity = raw_er_admission['LAS intensity'].mean()
 lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
 
-myobj = {'ACSC': 'Search_Template',
- 'Age_band': 'Search_Template',
- 'Arr_Amb': 'Search_Template',
- 'Arrival intensity': 'Search_Template',
- 'Consultant_on_duty': 'Search_Template',
- 'DayWeek_coded': 'Search_Template',
- 'ED bed occupancy': 'Search_Template',
- 'Ethnicity': 'Search_Template',
- 'Gender': 'Search_Template',
- 'IMD_quintile': 'Search_Template',
- 'Inpatient_bed_occupancy': 'Search_Template',
- 'LAS intensity': 'Search_Template',
- 'LWBS intensity': 'Search_Template',
- 'Last_10_mins': 'Search_Template',
- 'Shift_coded': 'Search_Template',
- 'Site': 'Search_Template'
- }
-
-
 cards = [
     dbc.Card(
         [
@@ -90,6 +71,7 @@ cards = [
 
 colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#000000"}
 
+
 layout = html.Div(
 
     [  
@@ -119,12 +101,12 @@ layout = html.Div(
                     ]
                 ),
         html.Br(),
-        html.Span(id="output-database", style={"verticalAlign": "middle"}),
-        #dbc.Row([dbc.Col(card) for card in cards]), 
+        html.Span(id="output-database", style={"verticalAlign": "middle"}), 
         html.Br(),
         html.Br(),
         html.Div(id='output-datatable'),
         dbc.Container([
+            dbc.Row([dbc.Col(card) for card in cards]),
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
                 dbc.Col(id='output-div-2', style = {'width': '50%'}),
@@ -154,24 +136,24 @@ def parse_contents(contents, filename, date):
         ])
 
     return html.Div([
-        html.H5(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-        dash_table.DataTable(
-            data=df.to_dict('records'),
-            columns=[{'name': i, 'id': i} for i in df.columns],
-            page_size=15
-        ),
-        dcc.Store(id='stored-data', data=df.to_dict('records')),
-        # print("diccionario",data)
+            html.H5(filename),
+            html.H6(datetime.datetime.fromtimestamp(date)),
+            dash_table.DataTable(
+                data=df.to_dict('records'),
+                columns=[{'name': i, 'id': i} for i in df.columns],
+                page_size=15
+            ),
+            dcc.Store(id='stored-data', data=df.to_dict('records')),
+            # print("diccionario",data)
 
-        html.Hr(),  # horizontal line
-        # For debugging, display the raw contents provided by the web browser
-        # html.Div('Raw Content'),
-        # html.Pre(contents[0:200] + '...', style={
-        #     'whiteSpace': 'pre-wrap',
-        #     'wordBreak': 'break-all'
-        # })
-    ])
+            html.Hr(),  # horizontal line
+            # For debugging, display the raw contents provided by the web browser
+            # html.Div('Raw Content'),
+            # html.Pre(contents[0:200] + '...', style={
+            #     'whiteSpace': 'pre-wrap',
+            #     'wordBreak': 'break-all'
+            # })
+        ])
 
 
 @callback(Output('output-datatable', 'children'),
@@ -184,6 +166,7 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
             parse_contents(c, n, d) for c, n, d in
             zip(list_of_contents, list_of_names, list_of_dates)]
         return children
+
 
 
 @callback(Output('output-database', 'children'),
@@ -216,18 +199,23 @@ def save_in_db(n, data):
 
 
 @callback(Output('output-div', 'children'),
-              State('stored-data','data'))
-def make_graphs(data):
-    bar_fig = px.bar(data, x= 'DayWeek_coded')
-    # print(data)
-    return dcc.Graph(figure=bar_fig)
+          Input('graph-button','n_clicks'),
+          State('stored-data','data'))
+def make_graphs(n,data):
+    if n is None:
+        return dash.no_update
+    else:
+        bar_fig = px.bar(data, x= 'DayWeek_coded')
+        # print(data)
+        return dcc.Graph(figure=bar_fig)
     
 @callback(Output('output-div-2', 'children'),
-              Input('stored-data','data'))
-def make_graphs_2(data):
-    bar_fig = px.bar(data, x= 'Gender')
-    # print(data)
-    return dcc.Graph(figure=bar_fig)
-
-
-
+          Input('graph-button','n_clicks'),
+          State('stored-data','data'))
+def make_graphs_2(n,data):
+    if n is None:
+        return dash.no_update
+    else:
+        bar_fig = px.bar(data, x= 'Gender')
+        # print(data)
+        return dcc.Graph(figure=bar_fig)
