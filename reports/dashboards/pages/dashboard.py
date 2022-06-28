@@ -107,6 +107,7 @@ layout = html.Div(
         html.Div(id='output-datatable'),
         dbc.Container([
             dbc.Row([dbc.Col(card) for card in cards]),
+            html.Br(),
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
                 dbc.Col(id='output-div-2', style = {'width': '50%'}),
