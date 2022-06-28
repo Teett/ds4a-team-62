@@ -15,7 +15,7 @@ import json
 
 
 # dash-labs plugin call, menu name and route
-register_page(__name__, path='/dashboard-test')
+register_page(__name__, path='/dashboard')
 
 # from components.kpi.kpibadge import kpibadge
 
@@ -31,6 +31,25 @@ ed_bed = raw_er_admission['ED bed occupancy'].mean()
 arrival_intensity = raw_er_admission['Arrival intensity'].mean()
 las_intensity = raw_er_admission['LAS intensity'].mean()
 lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
+
+myobj = {'ACSC': 'Search_Template',
+ 'Age_band': 'Search_Template',
+ 'Arr_Amb': 'Search_Template',
+ 'Arrival intensity': 'Search_Template',
+ 'Consultant_on_duty': 'Search_Template',
+ 'DayWeek_coded': 'Search_Template',
+ 'ED bed occupancy': 'Search_Template',
+ 'Ethnicity': 'Search_Template',
+ 'Gender': 'Search_Template',
+ 'IMD_quintile': 'Search_Template',
+ 'Inpatient_bed_occupancy': 'Search_Template',
+ 'LAS intensity': 'Search_Template',
+ 'LWBS intensity': 'Search_Template',
+ 'Last_10_mins': 'Search_Template',
+ 'Shift_coded': 'Search_Template',
+ 'Site': 'Search_Template'
+ }
+
 
 cards = [
     dbc.Card(
@@ -72,7 +91,10 @@ cards = [
 colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#000000"}
 
 layout = html.Div(
-    [   dcc.Upload(
+
+    [  
+
+        dcc.Upload(
             id="upload-data",
             children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
             style={
@@ -88,11 +110,20 @@ layout = html.Div(
             # Allow multiple files to be uploaded
             multiple=True,
         ),
-        dbc.Row([dbc.Col(card) for card in cards]),
+
+        html.Div(
+        [
+            dbc.Button("Save File in Database", id="submit-button", color = "primary", style={"margin-left": "15px"}, n_clicks = 0),
+            dbc.Button("Read Last File", id="read-button", color = "secondary", style={"margin-left": "20px"}, n_clicks = 0),
+            dbc.Button("Generate Insights", id="graph-button", color = "dark", style={"margin-left": "25px"}, n_clicks = 0),
+                    ]
+                ),
+        html.Br(),
+        html.Span(id="output-database", style={"verticalAlign": "middle"}),
+        #dbc.Row([dbc.Col(card) for card in cards]), 
         html.Br(),
         html.Br(),
         html.Div(id='output-datatable'),
-        html.Div(id='output-database'),
         dbc.Container([
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
@@ -125,15 +156,6 @@ def parse_contents(contents, filename, date):
     return html.Div([
         html.H5(filename),
         html.H6(datetime.datetime.fromtimestamp(date)),
-        # html.P("Inset X axis data"),
-        # dcc.Dropdown(id='xaxis-data',
-        #              options=[{'label':x, 'value':x} for x in df.columns]),
-        # html.P("Inset Y axis data"),
-        # dcc.Dropdown(id='yaxis-data',
-        #              options=[{'label':x, 'value':x} for x in df.columns]),
-        # html.Button(id="submit-button", children="Create Graph"),
-        # html.Hr(),
-
         dash_table.DataTable(
             data=df.to_dict('records'),
             columns=[{'name': i, 'id': i} for i in df.columns],
@@ -165,16 +187,20 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 
 
 @callback(Output('output-database', 'children'),
-              Input('stored-data','data'))
-def save_in_db(data):
+          Input('submit-button','n_clicks'),
+          State('stored-data','data'))
+def save_in_db(n, data):
     print(data)
-    for dato in data:
-        url = 'http://localhost:5000/insertar_admisions'
-        myobj = dato
-        myobj["nombreArchivo"] = "nombre_de_prueba"
-        x = requests.post(url, json = myobj)
-        print(x)
-    return html.Div(html.H3('Data Saved in Database'))
+    if n is None:
+        return dash.no_update
+    else:
+        for dato in data:
+            url = 'http://localhost:5000/insertar_admisions'
+            myobj = dato
+            myobj["nombreArchivo"] = "nombre_de_prueba"
+            x = requests.post(url, json = myobj)
+            print(x)
+        return f"Data saved in the Database"
 
     ###### Send chunks of data instead of 1 by 1 #####
 
@@ -187,6 +213,29 @@ def save_in_db(data):
     #     r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
     #     assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
     #     print(f'total processed chunk {i+1}/{len(chunks)}')
+
+
+@callback(Output('output-datatable', 'children'),
+          Input('read-button','n_clicks'),
+          State('stored-data','data'))
+def read_db (n):
+    if n is None:
+        return dash.no_update
+    else: 
+        url = 'http://localhost:5000/consulta_admision_por_nombre'
+        myobj["nombre"] = "nombre_de_prueba"
+        response = requests.post(url, json = myobj)
+        print(response)
+        print("json aja ", response.json())
+        response = response.json()
+        raw_er_admission = pd.DataFrame.from_dict(data = response['Respuesta'])
+        raw_er_admission.drop(['Stay_length','Admission_ALL','createdAt','currentDate','id','nombreArchivo','updatedAt'], axis = 1, inplace = True)
+        raw_er_admission.rename(columns = {'Inpatient_beoccupancy': 'Inpatient_bed_occupancy'}, inplace = True)
+        return dash_table.DataTable(
+            data=raw_er_admission.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in raw_er_admission.columns],
+            page_size=15
+        )
 
 
 @callback(Output('output-div', 'children'),
@@ -202,3 +251,5 @@ def make_graphs_2(data):
     bar_fig = px.bar(data, x= 'Gender')
     # print(data)
     return dcc.Graph(figure=bar_fig)
+
+
