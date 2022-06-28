@@ -25,52 +25,11 @@ register_page(__name__, path='/dashboard')
 # kpi4 = kpibadge('2122','Total User')
 
 
-raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
+#raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
 
-ed_bed = raw_er_admission['ED bed occupancy'].mean()
-arrival_intensity = raw_er_admission['Arrival intensity'].mean()
-las_intensity = raw_er_admission['LAS intensity'].mean()
-lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
 
-cards = [
-    dbc.Card(
-        [
-            html.H2(f"{ed_bed:.2f}", className="card-title"),
-            html.P("Average ED Bed Occupancy", className="card-text"),
-        ],
-        body=True,
-        color="light",
-    ),
-    dbc.Card(
-        [
-            html.H2(f"{arrival_intensity:.2f}", className="card-title"),
-            html.P("AVG Arrival within preceding hour", className="card-text"),
-        ],
-        body=True,
-        color="dark",
-        inverse=True,
-    ),
-    dbc.Card(
-        [
-            html.H2(f"{las_intensity:.2f}", className="card-title"),
-            html.P("Ambulance Arrival Intensity", className="card-text"),
-        ],
-        body=True,
-        color="primary",
-        inverse=True,
-    ),
-    dbc.Card(
-        [
-            html.H2(f"{lwbs_intensity:.2f}", className="card-title"),
-            html.P("LWBS intensity", className="card-text"),
-        ],
-        body=True,
-        color="light",
-    ),
-]
 
 colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#000000"}
-
 
 layout = html.Div(
 
@@ -96,17 +55,18 @@ layout = html.Div(
         html.Div(
         [
             dbc.Button("Save File in Database", id="submit-button", color = "primary", style={"margin-left": "15px"}, n_clicks = 0),
-            dbc.Button("Read Last File", id="read-button", color = "secondary", style={"margin-left": "20px"}, n_clicks = 0),
-            dbc.Button("Generate Insights", id="graph-button", color = "dark", style={"margin-left": "25px"}, n_clicks = 0),
+            #dbc.Button("Read Last File", id="read-button", color = "secondary", style={"margin-left": "20px"}, n_clicks = 0),
+            dbc.Button("Generate Insights", id="graph-button", color = "dark", style={"margin-left": "18px"}, n_clicks = 0),
                     ]
                 ),
         html.Br(),
         html.Span(id="output-database", style={"verticalAlign": "middle"}), 
         html.Br(),
-        html.Br(),
+        html.Hr(),
         html.Div(id='output-datatable'),
+        html.Br(),
         dbc.Container([
-            dbc.Row([dbc.Col(card) for card in cards]),
+            dbc.Row(id = "output-cards"),
             html.Br(),
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
@@ -137,6 +97,7 @@ def parse_contents(contents, filename, date):
         ])
 
     return html.Div([
+            html.H4('This is a preview of the file you selected'),
             html.H5(filename),
             html.H6(datetime.datetime.fromtimestamp(date)),
             dash_table.DataTable(
@@ -167,7 +128,6 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
             parse_contents(c, n, d) for c, n, d in
             zip(list_of_contents, list_of_names, list_of_dates)]
         return children
-
 
 
 @callback(Output('output-database', 'children'),
@@ -220,3 +180,53 @@ def make_graphs_2(n,data):
         bar_fig = px.bar(data, x= 'Gender')
         # print(data)
         return dcc.Graph(figure=bar_fig)
+
+@callback(Output('output-cards', 'children'),
+          Input('graph-button','n_clicks'),
+          State('stored-data','data'))
+def generate_cards (n,data):
+    if n is None:
+        return dash.no_update
+    else:
+        raw_er_admission = pd.DataFrame.from_dict(data)
+        ed_bed = raw_er_admission['ED bed occupancy'].mean()
+        arrival_intensity = raw_er_admission['Arrival intensity'].mean()
+        las_intensity = raw_er_admission['LAS intensity'].mean()
+        lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
+        cards = [
+        dbc.Card(
+            [
+                html.H2(f"{ed_bed:.2f}", className="card-title"),
+                html.P("Average ED Bed Occupancy", className="card-text"),
+            ],
+            body=True,
+            color="light",
+        ),
+        dbc.Card(
+            [
+                html.H2(f"{arrival_intensity:.2f}", className="card-title"),
+                html.P("AVG Arrival within preceding hour", className="card-text"),
+            ],
+            body=True,
+            color="dark",
+            inverse=True,
+        ),
+        dbc.Card(
+            [
+                html.H2(f"{las_intensity:.2f}", className="card-title"),
+                html.P("Ambulance Arrival Intensity", className="card-text"),
+            ],
+            body=True,
+            color="primary",
+            inverse=True,
+        ),
+        dbc.Card(
+            [
+                html.H2(f"{lwbs_intensity:.2f}", className="card-title"),
+                html.P("LWBS intensity", className="card-text"),
+            ],
+            body=True,
+            color="light",
+        ),
+        ]
+        return [dbc.Col(card) for card in cards]
