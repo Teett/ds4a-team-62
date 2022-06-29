@@ -10,9 +10,9 @@ import datetime
 import io
 import plotly.graph_objs as go
 import plotly.express as px
-
-#Recall app
-#from app import app
+import requests
+import json
+from components.kpi.kpibadge import kpibadge
 
 
 # dash-labs plugin call, menu name and route
@@ -26,54 +26,17 @@ register_page(__name__, path='/dashboard')
 # kpi4 = kpibadge('2122','Total User')
 
 
-raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
+#raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
 
-ed_bed = raw_er_admission['ED bed occupancy'].mean()
-arrival_intensity = raw_er_admission['Arrival intensity'].mean()
-las_intensity = raw_er_admission['LAS intensity'].mean()
-lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
 
-cards = [
-    dbc.Card(
-        [
-            html.H2(f"{ed_bed:.2f}", className="card-title"),
-            html.P("Average ED Bed Occupancy", className="card-text"),
-        ],
-        body=True,
-        color="light",
-    ),
-    dbc.Card(
-        [
-            html.H2(f"{arrival_intensity:.2f}", className="card-title"),
-            html.P("AVG Arrival within preceding hour", className="card-text"),
-        ],
-        body=True,
-        color="dark",
-        inverse=True,
-    ),
-    dbc.Card(
-        [
-            html.H2(f"{las_intensity:.2f}", className="card-title"),
-            html.P("Ambulance Arrival Intensity", className="card-text"),
-        ],
-        body=True,
-        color="primary",
-        inverse=True,
-    ),
-    dbc.Card(
-        [
-            html.H2(f"{lwbs_intensity:.2f}", className="card-title"),
-            html.P("LWBS intensity", className="card-text"),
-        ],
-        body=True,
-        color="light",
-    ),
-]
 
 colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#000000"}
 
 layout = html.Div(
-    [   dcc.Upload(
+
+    [  
+
+        dcc.Upload(
             id="upload-data",
             children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
             style={
@@ -89,15 +52,34 @@ layout = html.Div(
             # Allow multiple files to be uploaded
             multiple=True,
         ),
-        dbc.Row([dbc.Col(card) for card in cards]),
-        html.Br(),
-        html.Br(),
-        #dcc.Graph(id="Mygraph"),
-        #html.Div(id="output-data-upload"),
 
-        html.Div(id='output-div'),
-        html.Div(id='output-div-2'),
+        html.Div(
+        [
+            dbc.Button("Save File in Database", id="submit-button", color = "primary", style={"margin-left": "15px"}, n_clicks = 0),
+            #dbc.Button("Read Last File", id="read-button", color = "secondary", style={"margin-left": "20px"}, n_clicks = 0),
+            dbc.Button("Generate Insights", id="graph-button", color = "dark", style={"margin-left": "18px"}, n_clicks = 0),
+                    ]
+                ),
+        html.Br(),
+        html.Span(id="output-database", style={"verticalAlign": "middle"}), 
+        html.Br(),
+        html.Hr(),
         html.Div(id='output-datatable'),
+        html.Br(),
+        dbc.Container([
+            html.H4(id= "output-title"),
+            dbc.Row(id = "output-cards"),
+            html.Br(),
+            html.H4(id= "output-title-2"),
+            dbc.Row(id = 'output-badges'),
+            html.Br(),
+            dbc.Row([
+                dbc.Col(id='output-div',   style = {'width': '50%'}),
+                dbc.Col(id='output-div-2', style = {'width': '50%'}),
+                    ]
+                )
+            ]
+        )        
     ]
 )
 
@@ -120,33 +102,25 @@ def parse_contents(contents, filename, date):
         ])
 
     return html.Div([
-        html.H5(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-        html.P("Inset X axis data"),
-        dcc.Dropdown(id='xaxis-data',
-                     options=[{'label':x, 'value':x} for x in df.columns]),
-        html.P("Inset Y axis data"),
-        dcc.Dropdown(id='yaxis-data',
-                     options=[{'label':x, 'value':x} for x in df.columns]),
-        html.Button(id="submit-button", children="Create Graph"),
-        html.Hr(),
+            html.H4('This is a preview of the file you selected'),
+            html.H5(filename),
+            html.H6(datetime.datetime.fromtimestamp(date)),
+            dash_table.DataTable(
+                data=df.to_dict('records'),
+                columns=[{'name': i, 'id': i} for i in df.columns],
+                page_size=15
+            ),
+            dcc.Store(id='stored-data', data=df.to_dict('records')),
+            # print("diccionario",data)
 
-        dash_table.DataTable(
-            data=df.to_dict('records'),
-            columns=[{'name': i, 'id': i} for i in df.columns],
-            page_size=15
-        ),
-        dcc.Store(id='stored-data', data=df.to_dict('records')),
-
-        html.Hr(),  # horizontal line
-
-        # For debugging, display the raw contents provided by the web browser
-        html.Div('Raw Content'),
-        html.Pre(contents[0:200] + '...', style={
-            'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all'
-        })
-    ])
+            html.Hr(),  # horizontal line
+            # For debugging, display the raw contents provided by the web browser
+            # html.Div('Raw Content'),
+            # html.Pre(contents[0:200] + '...', style={
+            #     'whiteSpace': 'pre-wrap',
+            #     'wordBreak': 'break-all'
+            # })
+        ])
 
 
 @callback(Output('output-datatable', 'children'),
@@ -161,17 +135,137 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
         return children
 
 
+@callback(Output('output-database', 'children'),
+          Input('submit-button','n_clicks'),
+          State('stored-data','data'))
+def save_in_db(n, data):
+    print(data)
+    if n is None:
+        return dash.no_update
+    else:
+        for dato in data:
+            url = 'http://localhost:5000/insertar_admisions'
+            myobj = dato
+            myobj["nombreArchivo"] = "nombre_de_prueba"
+            x = requests.post(url, json = myobj)
+            print(x)
+        return f"Data saved in the Database"
+
+    ###### Send chunks of data instead of 1 by 1 #####
+
+    # url = 'http://localhost:5000/insertar_admisions'
+    # data = pd.DataFrame(data)
+    # data['nombreArchivo'] = 'nombre_de_prueba'
+    # data = data.to_dict('records')
+    # chunks = [data[x:x+10] for x in range(0, len(data), 30)]
+    # for i, chunk in enumerate(chunks):
+    #     r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
+    #     assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
+    #     print(f'total processed chunk {i+1}/{len(chunks)}')
+
+
 @callback(Output('output-div', 'children'),
-              Input('stored-data','data'))
-
-def make_graphs(data):
-    bar_fig = px.bar(data, x= 'Dimension')
-    # print(data)
-    return dcc.Graph(figure=bar_fig)
-
+          Input('graph-button','n_clicks'),
+          State('stored-data','data'))
+def make_graphs(n,data):
+    if n is None:
+        return dash.no_update
+    else:
+        bar_fig = px.bar(data, x= 'DayWeek_coded')
+        # print(data)
+        return dcc.Graph(figure=bar_fig)
+    
 @callback(Output('output-div-2', 'children'),
-              Input('stored-data','data'))
-def make_graphs_2(data):
-    bar_fig = px.bar(data, x= 'Make')
-    # print(data)
-    return dcc.Graph(figure=bar_fig)
+          Input('graph-button','n_clicks'),
+          State('stored-data','data'))
+def make_graphs_2(n,data):
+    if n is None:
+        return dash.no_update
+    else:
+        bar_fig = px.bar(data, x= 'Gender')
+        # print(data)
+        return dcc.Graph(figure=bar_fig)
+
+@callback(
+        Output('output-title', 'children'),
+        Output('output-cards', 'children'),
+        Input('graph-button','n_clicks'),
+        State('stored-data','data')
+        )
+def generate_cards (n,data):
+    if n is None:
+        return dash.no_update
+    else:
+        raw_er_admission = pd.DataFrame.from_dict(data)
+        ed_bed = raw_er_admission['ED bed occupancy'].mean()
+        arrival_intensity = raw_er_admission['Arrival intensity'].mean()
+        las_intensity = raw_er_admission['LAS intensity'].mean()
+        lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
+        cards = [
+        dbc.Card(
+            [
+                html.H2(f"{ed_bed:.2f}", className="card-title"),
+                html.P("Average ED Bed Occupancy", className="card-text"),
+            ],
+            body=True,
+            color="light",
+        ),
+        dbc.Card(
+            [
+                html.H2(f"{arrival_intensity:.2f}", className="card-title"),
+                html.P("AVG Arrival within preceding hour", className="card-text"),
+            ],
+            body=True,
+            color="dark",
+            inverse=True,
+        ),
+        dbc.Card(
+            [
+                html.H2(f"{las_intensity:.2f}", className="card-title"),
+                html.P("Ambulance Arrival Intensity", className="card-text"),
+            ],
+            body=True,
+            color="primary",
+            inverse=True,
+        ),
+        dbc.Card(
+            [
+                html.H2(f"{lwbs_intensity:.2f}", className="card-title"),
+                html.P("LWBS intensity", className="card-text"),
+            ],
+            body=True,
+            color="light",
+        ),
+        ]
+        return f"ER Thresholds", [dbc.Col(card) for card in cards]
+        
+
+@callback(
+        Output('output-title-2', 'children'), 
+        Output('output-badges', 'children'),
+        Input('graph-button','n_clicks'),
+        State('stored-data','data'))
+def generate_bagdes(n,data):
+    if n is None:
+        return dash.no_update
+    else:
+        raw_er_admission = pd.DataFrame.from_dict(data)
+        ed_bed = round(raw_er_admission['ED bed occupancy'].median(),2)
+        arrival_intensity = round(raw_er_admission['Arrival intensity'].median(),2)
+        las_intensity = round(raw_er_admission['LAS intensity'].median(),2)
+        lwbs_intensity = round(raw_er_admission['LWBS intensity'].median(),2)
+
+        #Agregar los ifs de los Thresholds#
+
+        kpi1 = kpibadge(ed_bed, 'Average ED Bed Occupancy', 'Danger')
+        kpi2 = kpibadge(arrival_intensity, 'AVG Arrival within preceding hour', 'Warning')
+        kpi3 = kpibadge(las_intensity, 'Ambulance Arrival Intensity', 'Approved')
+        kpi4 = kpibadge(lwbs_intensity,'LWBS intensity', 'Danger')
+        badges = [  
+                kpi1.display(),
+                kpi2.display(),
+                kpi3.display(),
+                kpi4.display()
+        ] 
+    return f"Current Kpis", [dbc.Col(badge) for badge in badges]
+      
