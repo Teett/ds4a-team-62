@@ -143,26 +143,27 @@ def save_in_db(n, data):
     if n is None:
         return dash.no_update
     else:
-        for dato in data:
-            url = 'http://localhost:5000/insertar_admisions'
-            myobj = dato
-            myobj["nombreArchivo"] = "nombre_de_prueba"
-            x = requests.post(url, json = myobj)
-            print(x)
-        return f"Data saved in the Database"
+        # for dato in data:
+        #     url = 'http://localhost:5000/insertar_admisions'
+        #     myobj = dato
+        #     myobj["nombreArchivo"] = "nombre_de_prueba"
+        #     x = requests.post(url, json = myobj)
+        #     print(x)
+        # return f"Data saved in the Database"
 
     ###### Send chunks of data instead of 1 by 1 #####
 
-    # url = 'http://localhost:5000/insertar_admisions'
-    # data = pd.DataFrame(data)
-    # data['nombreArchivo'] = 'nombre_de_prueba'
-    # data = data.to_dict('records')
-    # chunks = [data[x:x+10] for x in range(0, len(data), 30)]
-    # for i, chunk in enumerate(chunks):
-    #     r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
-    #     assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
-    #     print(f'total processed chunk {i+1}/{len(chunks)}')
+        url = 'http://localhost:5000/insertar_all_admisions'
+        data = pd.DataFrame(data)
+        data['nombreArchivo'] = 'nombre_de_prueba'
+        data = data.to_dict('records')
+        chunks = [data[x:x+10] for x in range(0, len(data), 30)]
+        for i, chunk in enumerate(chunks):
+            r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
+            assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
+            print(f'total processed chunk {i+1}/{len(chunks)}')
 
+        return f"Data saved in the Database"
 
 @callback(Output('output-div', 'children'),
           Input('graph-button','n_clicks'),
