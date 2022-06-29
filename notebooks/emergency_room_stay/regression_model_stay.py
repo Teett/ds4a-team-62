@@ -1,10 +1,11 @@
 # %% libraries
+from statistics import mean
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
 from sklearn.linear_model import LinearRegression
 from sklearn import model_selection
-from sklearn.metrics import r2_score, make_scorer
+from sklearn.metrics import r2_score, make_scorer, mean_squared_error
 
 # %% read data 
 X_train = pd.read_pickle('../../data/processed/stay/X_train_stay.pickle')
@@ -39,9 +40,11 @@ def run_exps(x_train: pd.DataFrame , y_train: pd.DataFrame, x_test: pd.DataFrame
     
     for name, model in models:
         kfold = model_selection.KFold(n_splits=10, shuffle=True, random_state=90210)
-        cv_results = model_selection.cross_validate(model, x_train, y_train, cv = kfold, scoring= ('r2', 'neg_mean_squared_error') )
+        cv_results = model_selection.cross_validate(model, x_train, y_train, cv = kfold, scoring= ('r2', 'neg_mean_squared_error', 'neg_root_mean_squared_error') )
         regressor = model.fit(x_train, y_train)
         y_pred = regressor.predict(x_test)
+        rmse = mean_squared_error(y_true= y_test, y_pred = y_pred, squared= False)
+        print(rmse)
         print(name)
         results.append(cv_results)
         names.append(name)
