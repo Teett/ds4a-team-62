@@ -12,6 +12,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 import requests
 import json
+from components.kpi.kpibadge import kpibadge
 
 
 # dash-labs plugin call, menu name and route
@@ -66,7 +67,11 @@ layout = html.Div(
         html.Div(id='output-datatable'),
         html.Br(),
         dbc.Container([
+            html.H4(id= "output-title"),
             dbc.Row(id = "output-cards"),
+            html.Br(),
+            html.H4(id= "output-title-2"),
+            dbc.Row(id = 'output-badges'),
             html.Br(),
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
@@ -181,9 +186,12 @@ def make_graphs_2(n,data):
         # print(data)
         return dcc.Graph(figure=bar_fig)
 
-@callback(Output('output-cards', 'children'),
-          Input('graph-button','n_clicks'),
-          State('stored-data','data'))
+@callback(
+        Output('output-title', 'children'),
+        Output('output-cards', 'children'),
+        Input('graph-button','n_clicks'),
+        State('stored-data','data')
+        )
 def generate_cards (n,data):
     if n is None:
         return dash.no_update
@@ -229,4 +237,35 @@ def generate_cards (n,data):
             color="light",
         ),
         ]
-        return [dbc.Col(card) for card in cards]
+        return f"ER Thresholds", [dbc.Col(card) for card in cards]
+        
+
+@callback(
+        Output('output-title-2', 'children'), 
+        Output('output-badges', 'children'),
+        Input('graph-button','n_clicks'),
+        State('stored-data','data'))
+def generate_bagdes(n,data):
+    if n is None:
+        return dash.no_update
+    else:
+        raw_er_admission = pd.DataFrame.from_dict(data)
+        ed_bed = round(raw_er_admission['ED bed occupancy'].median(),2)
+        arrival_intensity = round(raw_er_admission['Arrival intensity'].median(),2)
+        las_intensity = round(raw_er_admission['LAS intensity'].median(),2)
+        lwbs_intensity = round(raw_er_admission['LWBS intensity'].median(),2)
+
+        #Agregar los ifs de los Thresholds#
+
+        kpi1 = kpibadge(ed_bed, 'Average ED Bed Occupancy', 'Danger')
+        kpi2 = kpibadge(arrival_intensity, 'AVG Arrival within preceding hour', 'Warning')
+        kpi3 = kpibadge(las_intensity, 'Ambulance Arrival Intensity', 'Approved')
+        kpi4 = kpibadge(lwbs_intensity,'LWBS intensity', 'Danger')
+        badges = [  
+                kpi1.display(),
+                kpi2.display(),
+                kpi3.display(),
+                kpi4.display()
+        ] 
+    return f"Current Kpis", [dbc.Col(badge) for badge in badges]
+      
