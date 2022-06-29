@@ -247,12 +247,21 @@ def generate_bagdes(n,data):
         las_intensity = round(raw_er_admission['LAS intensity'].median(),2)
         lwbs_intensity = round(raw_er_admission['LWBS intensity'].median(),2)
 
-        #Agregar los ifs de los Thresholds#
+        # ER Thresholds# ##Define Thresholds con Daniel ####
 
-        kpi1 = kpibadge(ed_bed, 'Average ED Bed Occupancy', 'Danger')
-        kpi2 = kpibadge(arrival_intensity, 'AVG Arrival within preceding hour', 'Warning')
-        kpi3 = kpibadge(las_intensity, 'Ambulance Arrival Intensity', 'Approved')
-        kpi4 = kpibadge(lwbs_intensity,'LWBS intensity', 'Danger')
+        if ed_bed > 1.7:
+            badge_1 = 'Danger'
+        if arrival_intensity > 23:
+            badge_2 = 'Warning'
+        if las_intensity > 0.15:
+            badge_3 = 'Approved'
+        if lwbs_intensity > 0.06:
+            badge_4 = 'Danger'
+
+        kpi1 = kpibadge(ed_bed, 'Average ED Bed Occupancy', badge_1)
+        kpi2 = kpibadge(arrival_intensity, 'AVG Arrival within preceding hour', badge_2)
+        kpi3 = kpibadge(las_intensity, 'Ambulance Arrival Intensity', badge_3)
+        kpi4 = kpibadge(lwbs_intensity,'LWBS intensity', badge_4)
         badges = [  
                 kpi1.display(),
                 kpi2.display(),
