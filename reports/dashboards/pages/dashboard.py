@@ -164,28 +164,20 @@ def save_in_db(n, data):
     #     print(f'total processed chunk {i+1}/{len(chunks)}')
 
 
-@callback(Output('output-div', 'children'),
-          Input('graph-button','n_clicks'),
-          State('stored-data','data'))
+@callback(
+        Output('output-div', 'children'),
+        Output('output-div-2', 'children'),
+        Input('graph-button','n_clicks'),
+        State('stored-data','data'))
 def make_graphs(n,data):
     if n is None:
         return dash.no_update
     else:
-        bar_fig = px.bar(data, x= 'DayWeek_coded')
-        # print(data)
-        return dcc.Graph(figure=bar_fig)
-    
-@callback(Output('output-div-2', 'children'),
-          Input('graph-button','n_clicks'),
-          State('stored-data','data'))
-def make_graphs_2(n,data):
-    if n is None:
-        return dash.no_update
-    else:
-        bar_fig = px.bar(data, x= 'Gender')
-        # print(data)
-        return dcc.Graph(figure=bar_fig)
+        bar_fig_1 = px.bar(data, x= 'DayWeek_coded')
+        bar_fig_2 = px.bar(data, x= 'Gender')
 
+        return dcc.Graph(figure=bar_fig_1), dcc.Graph(figure=bar_fig_2)
+  
 @callback(
         Output('output-title', 'children'),
         Output('output-cards', 'children'),
