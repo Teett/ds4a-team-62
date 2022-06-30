@@ -10,15 +10,17 @@ import datetime
 import io
 import plotly.graph_objs as go
 import plotly.express as px
-
+from src.visualization.visualize import ageband_plot
 
 # dash-labs plugin call, menu name and route
 register_page(__name__, path='/analytics')
 
+# bar_fig = ageband_plot()
 
 layout = html.Div(
     [
         html.P("General Insights:"),
+        dbc.Graph(),
         html.Div(id="bar-container", children=[]),
     ]
 )

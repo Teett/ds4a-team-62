@@ -44,7 +44,7 @@ cards = [
     ),
 ]
 
-#raw_er_admission = pd.read_excel('../../data/processed/admission/app_test_dataset.xlsx', sheet_name = 'Data',index_col = None)
+#daily_admissions = pd.read_excel('../../data/processed/admission/app_test_dataset.xlsx', sheet_name = 'Data',index_col = None)
 
 myobj = {'ACSC': 'Search_Template',
  'Age_band': 'Search_Template',
@@ -64,7 +64,7 @@ myobj = {'ACSC': 'Search_Template',
  'Site': 'Search_Template'
  }
 
-#raw_er_admission = pd.read_excel('../../data/processed/admission/app_test_dataset.xlsx', sheet_name = 'Data',index_col = None)
+#daily_admissions = pd.read_excel('../../data/processed/admission/app_test_dataset.xlsx', sheet_name = 'Data',index_col = None)
 
 url = 'http://localhost:5000/consulta_admision_por_nombre'
 myobj["nombre"] = "nombre_de_prueba"
@@ -73,11 +73,11 @@ print(response)
 print("json aja ", response.json())
 
 response = response.json()
-raw_er_admission = pd.DataFrame.from_dict(data = response['Respuesta'])
-raw_er_admission.drop(['Stay_length','Admission_ALL','createdAt','currentDate','id','nombreArchivo','updatedAt'], axis = 1, inplace = True)
-raw_er_admission.rename(columns = {'Inpatient_beoccupancy': 'Inpatient_bed_occupancy'}, inplace = True)
+daily_admissions = pd.DataFrame.from_dict(data = response['Respuesta'])
+daily_admissions.drop(['Stay_length','Admission_ALL','createdAt','currentDate','id','nombreArchivo','updatedAt'], axis = 1, inplace = True)
+daily_admissions.rename(columns = {'Inpatient_beoccupancy': 'Inpatient_bed_occupancy'}, inplace = True)
 
-raw_er_admission = raw_er_admission.astype({"ACSC": float,
+daily_admissions = daily_admissions.astype({"ACSC": float,
                                             "Age_band": float,
                                             "Ethnicity": float,
                                             "Site": float,
@@ -106,10 +106,10 @@ with open('../../models/admission/model_1_elastic_net_tunned.pickle', 'rb') as f
 ################################################################################################
 # %% analyize missingess
 # impute 3, this new category will mean that there it is not know if the patient has a sensitive condition
-er_admission = raw_er_admission.copy()
-er_admission['ACSC'] = raw_er_admission['ACSC'].fillna(3)
+er_admission = daily_admissions.copy()
+er_admission['ACSC'] = daily_admissions['ACSC'].fillna(3)
 # impute category 5 (unknown) to the ethnicity variable
-er_admission['Ethnicity'] = raw_er_admission['Ethnicity'].fillna(5)
+er_admission['Ethnicity'] = daily_admissions['Ethnicity'].fillna(5)
 # drop the other null values, only 24 records will be discarded
 er_admission = er_admission.dropna()
 # get dummies
