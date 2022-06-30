@@ -64,8 +64,6 @@ myobj = {'ACSC': 'Search_Template',
  'Site': 'Search_Template'
  }
 
-#daily_admissions = pd.read_excel('../../data/processed/admission/app_test_dataset.xlsx', sheet_name = 'Data',index_col = None)
-
 url = 'http://localhost:5000/consulta_admision_por_nombre'
 myobj["nombre"] = "nombre_de_prueba"
 response = requests.post(url, json = myobj)
