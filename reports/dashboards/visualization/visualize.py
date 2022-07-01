@@ -3,8 +3,9 @@ import plotly.express as px
 
 def correlation_plot(df):
     correlations = df.corr()
-    sns.set(rc={'figure.figsize':(12, 12)})
-    sns.heatmap(correlations, cmap = "Blues")
+    corr_plot = px.imshow(correlations, text_auto = True, aspect = 'auto')
+    corr_plot.update_layout(title="Variables Correlation")
+    return corr_plot
 
 def ageband_plot(df):
     '''

@@ -6,7 +6,7 @@ import pandas as pd
 from dash_labs.plugins import register_page
 import plotly.graph_objs as go
 import plotly.express as px
-from visualization.visualize import ageband_plot
+from visualization import visualize
 from components.data_requests.get_df import get_generate_df
 from components.data_requests.data_transformation import transform_data
 import pickle
@@ -21,7 +21,8 @@ with open('../../models/admission/model_1_elastic_net_tunned.pickle', 'rb') as f
     model = pickle.load(f)
 
 daily_admissions = get_generate_df()
-bar_fig = ageband_plot(daily_admissions)
+bar_fig = visualize.ageband_plot(daily_admissions)
+
 adm_dummies = transform_data(daily_admissions)
 y_prob =model.predict_proba(adm_dummies) 
 y_pred = (y_prob[:,1] >= 0.25).astype(int)
@@ -41,25 +42,28 @@ y_pred = (y_prob[:,1] >= 0.25).astype(int)
 
 layout = html.Div(
     [
-        html.P("General Insights:"),
-        dcc.Graph(figure=bar_fig),
-        #dcc.Graph(figure = fig_2),
-        daq.Gauge(
-            color={"gradient":True,"ranges":{"green":[0.7,1],"yellow":[0.4,0.7],"red":[0,0.4]}},
-            value=y_prob.mean().item(),
-            label='Probability of Hospitalization',
-            max=1,
-            min=0,
-        ),
-        html.Div(id="bar-container", children=[]),
+        html.H4("General Insights:"),
+        html.Br(),
+        dbc.Container([
+            dbc.Row(
+                [
+                dbc.Col(dcc.Graph(figure=bar_fig)),
+                dbc.Col(daq.Gauge(
+                        color={"gradient":True,"ranges":{"green":[0.7,1],"yellow":[0.4,0.7],"red":[0,0.4]}},
+                        value= y_prob.mean().item(),
+                        label='Probability of Hospitalization',
+                        max=1,
+                        min=0,
+                        size = 300))
+                ]
+            ),
+        dbc.Row(dcc.Graph(figure = visualize.correlation_plot(daily_admissions))),
+        dbc.Row([
+            dbc.Col(dcc.Graph(figure = visualize.ethnicity_plot(daily_admissions))),
+            dbc.Col(dcc.Graph(figure = visualize.acsc_plot(daily_admissions)))
+                ]
+            )      
+            ]
+        )
     ]
 )
-
-# @callback(
-#     [Output("bar-container", "children")]
-#     [State("stored-data", "data")]
-# )
-# def make_graphs(data):
-#     bar_fig = px.bar(data, x= data['Dimension'])
-#     # print(data)
-#     return dcc.Graph(figure=bar_fig)
