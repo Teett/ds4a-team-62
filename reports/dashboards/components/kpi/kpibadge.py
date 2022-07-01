@@ -8,7 +8,7 @@ class kpibadge:
         self.label = label
         self.badgetype = badgetype
         if badgetype=='Danger':
-            self.color = "danger"
+            self.color = "danger"       
         elif badgetype == 'Warning':
             self.color = 'warning'
         else:
