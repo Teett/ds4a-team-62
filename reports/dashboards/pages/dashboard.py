@@ -13,29 +13,25 @@ import plotly.express as px
 import requests
 import json
 from components.kpi.kpibadge import kpibadge
+from components.data_requests.get_df import get_generate_df
+from components.data_requests.data_transformation import transform_data
+import pickle
+import dash_daq as daq
 
 
 # dash-labs plugin call, menu name and route
-register_page(__name__, path='/dashboard')
-
-# from components.kpi.kpibadge import kpibadge
-
-# kpi1 = kpibadge('325', 'Total kpi')
-# kpi2 = kpibadge('1500', 'Total sales')
-# kpi3 = kpibadge('325', 'Total transacciones')
-# kpi4 = kpibadge('2122','Total User')
-
-
-#raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
-
-
+register_page(__name__, path='/')
 
 colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#000000"}
+
+#Load the model to showw results in Insights:
+
+with open('../../models/admission/model_1_elastic_net_tunned.pickle', 'rb') as f:
+    model = pickle.load(f)
 
 layout = html.Div(
 
     [  
-
         dcc.Upload(
             id="upload-data",
             children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
@@ -57,7 +53,7 @@ layout = html.Div(
         [
             dbc.Button("Save File in Database", id="submit-button", color = "primary", style={"margin-left": "15px"}, n_clicks = 0),
             #dbc.Button("Read Last File", id="read-button", color = "secondary", style={"margin-left": "20px"}, n_clicks = 0),
-            dbc.Button("Generate Insights", id="graph-button", color = "dark", style={"margin-left": "18px"}, n_clicks = 0),
+            dbc.Button("Generate Today's Insights", id="graph-button", color = "dark", style={"margin-left": "18px"}, n_clicks = 0),
                     ]
                 ),
         html.Br(),
@@ -71,8 +67,9 @@ layout = html.Div(
             dbc.Row(id = "output-cards"),
             html.Br(),
             html.H4(id= "output-title-2"),
-            dbc.Row(id = 'output-badges'),
+            dbc.Row(id ='output-badges'),
             html.Br(),
+            #html.Div(id ='output-div')
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
                 dbc.Col(id='output-div-2', style = {'width': '50%'}),
@@ -102,17 +99,16 @@ def parse_contents(contents, filename, date):
         ])
 
     return html.Div([
-            html.H4('This is a preview of the file you selected'),
-            html.H5(filename),
-            html.H6(datetime.datetime.fromtimestamp(date)),
+            html.H4('This is a preview of the file you uploaded'),
+            html.H5('Note: If want to include this data in the Calculated Insights for Today, please firt save the file in the DataBase'),
+            html.H5(f"File uploaded: {filename}"),
+            html.H6(f"Date:{datetime.datetime.fromtimestamp(date)}"),
             dash_table.DataTable(
                 data=df.to_dict('records'),
                 columns=[{'name': i, 'id': i} for i in df.columns],
                 page_size=15
             ),
             dcc.Store(id='stored-data', data=df.to_dict('records')),
-            # print("diccionario",data)
-
             html.Hr(),  # horizontal line
             # For debugging, display the raw contents provided by the web browser
             # html.Div('Raw Content'),
@@ -157,7 +153,7 @@ def save_in_db(n, data):
         data = pd.DataFrame(data)
         data['nombreArchivo'] = 'nombre_de_prueba'
         data = data.to_dict('records')
-        chunks = [data[x:x+10] for x in range(0, len(data), 30)]
+        chunks = [data[x:x+10] for x in range(0, len(data), 10)]
         for i, chunk in enumerate(chunks):
             r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
             assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
@@ -174,10 +170,30 @@ def make_graphs(n,data):
     if n is None:
         return dash.no_update
     else:
-        bar_fig_1 = px.bar(data, x= 'DayWeek_coded')
-        bar_fig_2 = px.bar(data, x= 'Gender')
+        daily_admisions = get_generate_df()
+        adm_dummies = transform_data(daily_admisions)
+        y_prob =model.predict_proba(adm_dummies) 
+        y_pred = (y_prob[:,1] >= 0.25).astype(int)
+        y_pred_list = y_pred.tolist()
+        y_pred_dict = {'Admitted': y_pred_list.count(1), 'Not Admitted': y_pred_list.count(0)}
+        df = pd.DataFrame(y_pred_dict, index=['Pred']).transpose().reset_index()
+        df.rename(columns ={'index':'Status'},inplace=True)
 
-        return dcc.Graph(figure=bar_fig_1), dcc.Graph(figure=bar_fig_2)
+        fig_1 = px.bar(df, x='Pred', color = 'Status')
+        fig_1.update_xaxes(visible=False, showticklabels=False)
+        fig_1.update_layout( yaxis_title= "Count")
+
+        #y_pred_dict['Admitted'] / (y_pred_dict['Admitted'] + y_pred_dict['Not Admitted'])
+        
+        fig_2 = daq.Gauge(
+            color={"gradient":True,"ranges":{"green":[0.7,1],"yellow":[0.4,0.7],"red":[0,0.4]}},
+            value=y_prob.mean().item(),
+            label='Average Probability of Hospitalization',
+            max=1,
+            min=0,
+            size = 300
+        )
+        return dcc.Graph(figure=fig_1), fig_2
   
 @callback(
         Output('output-title', 'children'),
@@ -256,13 +272,13 @@ def generate_bagdes(n,data):
             badge_2 = 'Warning'
         if las_intensity > 0.15:
             badge_3 = 'Approved'
-        if lwbs_intensity > 0.06:
-            badge_4 = 'Danger'
+        # if lwbs_intensity > 0.06:
+        #     badge_4 = 'Danger'
 
         kpi1 = kpibadge(ed_bed, 'Average ED Bed Occupancy', badge_1)
         kpi2 = kpibadge(arrival_intensity, 'AVG Arrival within preceding hour', badge_2)
         kpi3 = kpibadge(las_intensity, 'Ambulance Arrival Intensity', badge_3)
-        kpi4 = kpibadge(lwbs_intensity,'LWBS intensity', badge_4)
+        kpi4 = kpibadge(lwbs_intensity,'LWBS intensity', "Danger")
         badges = [  
                 kpi1.display(),
                 kpi2.display(),
