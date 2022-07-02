@@ -61,9 +61,13 @@ print(adm_dummies.columns)
 ################################################################################################
 # Run the tunned model with the selected data
 ################################################################################################
-
-y_prob =model.predict_proba(adm_dummies) 
-y_pred = (y_prob[:,1] >= 0.25).astype(int)
+try:
+    y_prob =model.predict_proba(adm_dummies) 
+    y_pred = (y_prob[:,1] >= 0.25).astype(int)
+except:
+    d = {'y_prob': 0}
+    y_prob = pd.Series(data=d)
+    y_pred = pd.Series(data=d)
 print(list(y_pred))
 print(type(y_pred))
 print(y_prob)

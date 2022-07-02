@@ -22,9 +22,13 @@ class queries:
             diagnostico=e.diag.severity
             mensaje=e.diag.message_primary
             msm=Constantes.ERROR_SERVICIO
+        
+
+
             data={
                 "msm":msm,
                 'Respuesta':diagnostico+': '+mensaje
+                
                 }
             return data
 
@@ -34,8 +38,14 @@ class queries:
             for i, value in enumerate(dato):
                 response[cursor.description[i][0]]=value
             serial.append(response)
-
             msm=Constantes.PETICION_SERVICIO_EXITOSO
+        
+        if serial==[]:
+            response={}
+            for i,value in enumerate(cursor.description):
+                response[cursor.description[i][0]]=0
+            serial.append(response)
+
         data={"msm":msm,
             'Respuesta':serial
             }

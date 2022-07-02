@@ -3,3 +3,7 @@ dash-bootstrap-components==1.1.0
 pandas==1.4.2
 plotly-express==0.4.1
 openpyxl==3.0.9
+dash_labs
+
+sklearn
+dash_daq

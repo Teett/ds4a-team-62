@@ -61,13 +61,13 @@ def consulta_admisiones():
 def consulta_admisiones_de_hoy():
 
     now = date.today()
-    print(now)
+    # print(now)
     sql="""select * from public.admisions
             where "currentDate"=%s;
             """
     parametros=(now,)
     data = queries.consultaGeneral(sql,parametros)
-
+    print(data)
     return jsonify(data)
 
 def consulta_admision_por_nombre():
@@ -81,29 +81,27 @@ def consulta_admision_por_nombre():
     data = queries.consultaGeneral(sql,parametros)
     return jsonify(data)
 
-
 def insertar_admisions():
 
-    jsoncrArray=request.json
-    for jsoncr in jsoncrArray:
-        Site=jsoncr['Site']
-        DayWeek_coded=jsoncr['DayWeek_coded']
-        Shift_coded=jsoncr['Shift_coded'],
-        Arr_Amb=jsoncr['Arr_Amb']
-        Gender=jsoncr['Gender'],
-        Age_band=jsoncr['Age_band']
-        IMD_quintile=jsoncr['IMD_quintile']
-        Ethnicity=jsoncr['Ethnicity']
-        ACSC=jsoncr['ACSC']
-        Consultant_on_duty=jsoncr['Consultant_on_duty']
-        ED_bed_occupancy=jsoncr['ED bed occupancy']
-        Inpatient_beoccupancy=jsoncr['Inpatient_bed_occupancy']
-        Arrival_intensity=jsoncr['Arrival intensity']
-        LAS_intensity=jsoncr['LAS intensity']
-        LWBS_intensity=jsoncr['LWBS intensity']
-        Last_10_mins=jsoncr['Last_10_mins']
-        nombreArchivo=jsoncr['nombreArchivo']
-    consulta=""" ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) """
+    jsoncr=request.json
+    # print(jsoncr)
+    Site=jsoncr['Site']
+    DayWeek_coded=jsoncr['DayWeek_coded']
+    Shift_coded=jsoncr['Shift_coded'],
+    Arr_Amb=jsoncr['Arr_Amb']
+    Gender=jsoncr['Gender'],
+    Age_band=jsoncr['Age_band']
+    IMD_quintile=jsoncr['IMD_quintile']
+    Ethnicity=jsoncr['Ethnicity']
+    ACSC=jsoncr['ACSC']
+    Consultant_on_duty=jsoncr['Consultant_on_duty']
+    ED_bed_occupancy=jsoncr['ED bed occupancy']
+    Inpatient_beoccupancy=jsoncr['Inpatient_bed_occupancy']
+    Arrival_intensity=jsoncr['Arrival intensity']
+    LAS_intensity=jsoncr['LAS intensity']
+    LWBS_intensity=jsoncr['LWBS intensity']
+    Last_10_mins=jsoncr['Last_10_mins']
+    nombreArchivo=jsoncr['nombreArchivo']
 
     sql="""INSERT INTO public.admisions(
 	"Site", "DayWeek_coded", "Shift_coded", "Arr_Amb", "Gender", "Age_band", "IMD_quintile", "Ethnicity", "ACSC", "Consultant_on_duty", "ED bed occupancy", "Inpatient_beoccupancy", "Arrival intensity", "LAS intensity", "LWBS intensity",  "Last_10_mins",   "nombreArchivo")
@@ -151,7 +149,7 @@ def insertar_all_admisions():
     sql="""INSERT INTO public.admisions(
 	"Site", "DayWeek_coded", "Shift_coded", "Arr_Amb", "Gender", "Age_band", "IMD_quintile", "Ethnicity", "ACSC", "Consultant_on_duty", "ED bed occupancy", "Inpatient_beoccupancy", "Arrival intensity", "LAS intensity", "LWBS intensity",  "Last_10_mins",   "nombreArchivo")
 	VALUES {} """.format(consulta)
-    print(sql)
+    # print(sql)
     data = queries.updateOrInsert(sql)
-
+    print(data)
     return jsonify(data)
