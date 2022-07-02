@@ -3,9 +3,9 @@ from dash import html , dcc
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash_labs.plugins import register_page
-import pickle
-from components.data_requests.get_df import get_generate_df
 from components.data_requests.data_transformation import transform_data
+from components.data_requests.get_df import get_generate_df
+from models.predict_model import get_hosp_probabilities, get_hosp_pred
 
 # dash-labs plugin call, menu name and route
 register_page(__name__, path='/the-model')
@@ -16,7 +16,7 @@ cards = [
         [
             #html.H2(f"{train_acc*100:.2f}%", className="card-title"),
             html.H2(f"95.59%", className="card-title"),
-            html.P("Model Training Accuracy", className="card-text"),
+            html.P("Model Testing Sensibility", className="card-text"),
         ],
         body=True,
         color="light",
@@ -25,7 +25,7 @@ cards = [
         [
             #html.H2(f"{test_acc*100:.2f}%", className="card-title"),
             html.H2(f"80.23%", className="card-title"),
-            html.P("Model Test Accuracy", className="card-text"),
+            html.P("Model Testing Specificity", className="card-text"),
         ],
         body=True,
         color="dark",
@@ -42,34 +42,20 @@ cards = [
         inverse=True,
     ),
 ]
-
 ################################################################################################
 # Load the model and retrieve the DataFrame with today's pacients to pass to the model
 ################################################################################################
-
-with open('../../models/admission/model_1_elastic_net_tunned.pickle', 'rb') as f:
-    model = pickle.load(f)
 daily_admissions = get_generate_df()
-
 ################################################################################################
 # Transform the data
 ################################################################################################
-
 adm_dummies = transform_data(daily_admissions)
 print(adm_dummies.columns)
-
 ################################################################################################
 # Run the tunned model with the selected data
 ################################################################################################
-
-y_prob =model.predict_proba(adm_dummies) 
-y_pred = (y_prob[:,1] >= 0.25).astype(int)
-print(list(y_pred))
-print(type(y_pred))
-print(y_prob)
-print(y_prob.mean())
-print(type(y_prob.mean().item())) #.item() is to convert the numpy.float64 data type to a python native float type
-
+y_prob = get_hosp_probabilities(adm_dummies)
+y_pred = get_hosp_pred(adm_dummies)
 
 layout = html.Div(
     [
