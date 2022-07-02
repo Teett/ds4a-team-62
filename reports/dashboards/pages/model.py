@@ -56,7 +56,9 @@ print(adm_dummies.columns)
 ################################################################################################
 y_prob = get_hosp_probabilities(adm_dummies)
 y_pred = get_hosp_pred(adm_dummies)
-
+# lr_df = pd.concat([pd.DataFrame(y_prob),pd.DataFrame(y_pred)], axis = 1)
+# lr_df = lr_df.rename_axis('rownumbers').reset_index()
+# lr_df.head()
 layout = html.Div(
     [
         html.P("Choose the model to analyze:"),

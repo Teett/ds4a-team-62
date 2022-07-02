@@ -97,3 +97,9 @@ def acsc_plot(df):
                 title='Presentation because of an ambulatory care sensitive condition', 
                 text_auto=True)
     return plot
+
+def logistic_regression_plot(regression_df):
+    '''
+    Plots a logistic regression plot of the provided df.
+    '''
+    plot = px.scatter(regression_df, x='rowname', y='fitted', color='admitted')
