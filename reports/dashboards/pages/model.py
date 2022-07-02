@@ -54,11 +54,15 @@ print(adm_dummies.columns)
 ################################################################################################
 # Run the tunned model with the selected data
 ################################################################################################
-y_prob = get_hosp_probabilities(adm_dummies)
-y_pred = get_hosp_pred(adm_dummies)
-# lr_df = pd.concat([pd.DataFrame(y_prob),pd.DataFrame(y_pred)], axis = 1)
-# lr_df = lr_df.rename_axis('rownumbers').reset_index()
-# lr_df.head()
+
+try:
+    y_prob = get_hosp_probabilities(adm_dummies)
+    y_pred = get_hosp_pred(adm_dummies)
+except:
+    d = {'y_prob': 0}
+    y_prob = pd.Series(data=d)
+    y_pred = pd.Series(data=d)
+
 layout = html.Div(
     [
         html.P("Choose the model to analyze:"),

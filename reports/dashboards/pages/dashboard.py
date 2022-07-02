@@ -60,8 +60,6 @@ layout = html.Div(
         html.Span(id="output-database", style={"verticalAlign": "middle"}), 
         html.Br(),
         html.Hr(),
-        html.Div(id='output-datatable'),
-        html.Br(),
         dbc.Container([
             html.H4(id= "output-title"),
             dbc.Row(id = "output-cards"),
@@ -76,7 +74,9 @@ layout = html.Div(
                     ]
                 )
             ]
-        )        
+        ),
+        html.Div(id='output-datatable'),
+        html.Br(),        
     ]
 )
 
@@ -106,7 +106,7 @@ def parse_contents(contents, filename, date):
             dash_table.DataTable(
                 data=df.to_dict('records'),
                 columns=[{'name': i, 'id': i} for i in df.columns],
-                page_size=15
+                page_size=5
             ),
             dcc.Store(id='stored-data', data=df.to_dict('records')),
             html.Hr(),  # horizontal line
@@ -205,7 +205,7 @@ def generate_cards (n,data):
     if n is None:
         return dash.no_update
     else:
-        raw_er_admission = pd.DataFrame.from_dict(data)
+        raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
         ed_bed = raw_er_admission['ED bed occupancy'].mean()
         arrival_intensity = raw_er_admission['Arrival intensity'].mean()
         las_intensity = raw_er_admission['LAS intensity'].mean()

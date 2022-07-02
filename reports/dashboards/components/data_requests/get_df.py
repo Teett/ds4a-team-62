@@ -5,7 +5,9 @@ def get_generate_df ():
     url = 'http://localhost:5000/consulta_admisiones_de_hoy'
     r = requests.get(url)
     response = r.json()
+
     daily_admissions = pd.DataFrame.from_dict(data = response['Respuesta'])
+    
     daily_admissions.drop(['Stay_length','Admission_ALL','createdAt','currentDate','id','nombreArchivo','updatedAt'], axis = 1, inplace = True)
     daily_admissions.rename(columns = {'Inpatient_beoccupancy': 'Inpatient_bed_occupancy'}, inplace = True)
 

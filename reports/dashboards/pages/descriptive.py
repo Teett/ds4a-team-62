@@ -21,12 +21,18 @@ with open('../../models/admission/model_1_elastic_net_tunned.pickle', 'rb') as f
     model = pickle.load(f)
 
 daily_admissions = get_generate_df()
+aux=0
+# print('tipo dayli \n',str(type(daily_admissions)))
+
 bar_fig = visualize.ageband_plot(daily_admissions)
 
 adm_dummies = transform_data(daily_admissions)
-y_prob =model.predict_proba(adm_dummies) 
-y_pred = (y_prob[:,1] >= 0.25).astype(int)
-
+try:
+    y_prob =model.predict_proba(adm_dummies) 
+    y_pred = (y_prob[:,1] >= 0.25).astype(int)
+except:
+    d = {'y_prob': 0}
+    y_prob = pd.Series(data=d)
 # fig_2 = go.Figure(go.Indicator(
 #             domain = {'x': [0, 1], 'y': [0, 1]},
 #             value = {y_prob.mean().item()},
