@@ -1,7 +1,8 @@
-import seaborn as sns
 import plotly.express as px
+import pandas as pd
 
 def correlation_plot(df):
+    df.drop(['Consultant_on_duty','DayWeek_coded','Inpatient_bed_occupancy'], axis = 1, inplace = True)
     correlations = df.corr()
     corr_plot = px.imshow(correlations, text_auto = True, aspect = 'auto')
     corr_plot.update_layout(title="Variables Correlation")

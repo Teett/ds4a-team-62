@@ -1,7 +1,6 @@
 #libraries
 
-import dash
-from dash import Dash, html , dcc, dash_table, Input, Output, callback, State
+from dash import Dash, html , dcc, dash_table, Input, Output, callback, State, no_update
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash_labs.plugins import register_page
@@ -28,6 +27,51 @@ colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#00000
 
 with open('../../models/admission/model_1_elastic_net_tunned.pickle', 'rb') as f:
     model = pickle.load(f)
+
+## Load Cards to set up the Emergency Room Thresholds based on historic data:
+
+raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
+bed_occupancy = raw_er_admission['Inpatient_bed_occupancy'].mean()
+arrival_intensity = raw_er_admission['Arrival intensity'].mean()
+las_intensity = raw_er_admission['LAS intensity'].mean()
+lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
+
+cards = [
+dbc.Card(
+    [
+        html.H2(f"{bed_occupancy*100:.2f}%", className="card-title"),
+        html.P("AVG Bed Occupancy", className="card-text"),
+    ],
+    body=True,
+    color="light",
+),
+dbc.Card(
+    [
+        html.H2(f"{arrival_intensity:.2f}", className="card-title"),
+        html.P("AVG Arrivals within the preceding hour", className="card-text"),
+    ],
+    body=True,
+    color="dark",
+    inverse=True,
+),
+dbc.Card(
+    [
+        html.H2(f"{las_intensity*100:.2f}%", className="card-title"),
+        html.P("AVG Arrivals by Ambulance", className="card-text"),
+    ],
+    body=True,
+    color="primary",
+    inverse=True,
+),
+dbc.Card(
+    [
+        html.H2(f"{lwbs_intensity*100:.2f}%", className="card-title"),
+        html.P("Patients within the hour who leave without being seen by a Doctor", className="card-text",style={'textAlign': 'center'}),
+    ],
+    body=True,
+    color="light",
+),
+]
 
 layout = html.Div(
 
@@ -60,14 +104,14 @@ layout = html.Div(
         html.Span(id="output-database", style={"verticalAlign": "middle"}), 
         html.Br(),
         html.Hr(),
-        dbc.Container([
-            html.H4(id= "output-title"),
-            dbc.Row(id = "output-cards"),
-            html.Br(),
+        html.H4("ER Thresholds"),
+        html.Br(),
+        dbc.Row([dbc.Col(card) for card in cards]),
+        html.Br(),
+        html.Div([
             html.H4(id= "output-title-2"),
             dbc.Row(id ='output-badges'),
             html.Br(),
-            #html.Div(id ='output-div')
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
                 dbc.Col(id='output-div-2', style = {'width': '50%'}),
@@ -97,9 +141,8 @@ def parse_contents(contents, filename, date):
         return html.Div([
             'There was an error processing this file.'
         ])
-
     return html.Div([
-            html.H4('This is a preview of the file you uploaded'),
+            html.H4('This is a preview of the file you are about to upload'),#, style= "color: navy"),
             html.H5('Note: If want to include this data in the Calculated Insights for Today, please firt save the file in the DataBase'),
             html.H5(f"File uploaded: {filename}"),
             html.H6(f"Date:{datetime.datetime.fromtimestamp(date)}"),
@@ -109,13 +152,7 @@ def parse_contents(contents, filename, date):
                 page_size=5
             ),
             dcc.Store(id='stored-data', data=df.to_dict('records')),
-            html.Hr(),  # horizontal line
-            # For debugging, display the raw contents provided by the web browser
-            # html.Div('Raw Content'),
-            # html.Pre(contents[0:200] + '...', style={
-            #     'whiteSpace': 'pre-wrap',
-            #     'wordBreak': 'break-all'
-            # })
+            html.Hr(),
         ])
 
 
@@ -135,30 +172,18 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
           Input('submit-button','n_clicks'),
           State('stored-data','data'))
 def save_in_db(n, data):
-    print(data)
     if n is None:
-        return dash.no_update
+        return no_update
     else:
-        # for dato in data:
-        #     url = 'http://localhost:5000/insertar_admisions'
-        #     myobj = dato
-        #     myobj["nombreArchivo"] = "nombre_de_prueba"
-        #     x = requests.post(url, json = myobj)
-        #     print(x)
-        # return f"Data saved in the Database"
-
-    ###### Send chunks of data instead of 1 by 1 #####
-
         url = 'http://localhost:5000/insertar_all_admisions'
         data = pd.DataFrame(data)
         data['nombreArchivo'] = 'nombre_de_prueba'
         data = data.to_dict('records')
-        chunks = [data[x:x+10] for x in range(0, len(data), 10)]
+        chunks = [data[x:x+100] for x in range(0, len(data), 100)]
         for i, chunk in enumerate(chunks):
             r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
             assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
             print(f'total processed chunk {i+1}/{len(chunks)}')
-
         return f"Data saved in the Database"
 
 @callback(
@@ -168,7 +193,7 @@ def save_in_db(n, data):
         State('stored-data','data'))
 def make_graphs(n,data):
     if n is None:
-        return dash.no_update
+        return no_update
     else:
         daily_admisions = get_generate_df()
         adm_dummies = transform_data(daily_admisions)
@@ -196,67 +221,13 @@ def make_graphs(n,data):
         return dcc.Graph(figure=fig_1), fig_2
   
 @callback(
-        Output('output-title', 'children'),
-        Output('output-cards', 'children'),
-        Input('graph-button','n_clicks'),
-        State('stored-data','data')
-        )
-def generate_cards (n,data):
-    if n is None:
-        return dash.no_update
-    else:
-        raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
-        ed_bed = raw_er_admission['ED bed occupancy'].mean()
-        arrival_intensity = raw_er_admission['Arrival intensity'].mean()
-        las_intensity = raw_er_admission['LAS intensity'].mean()
-        lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
-        cards = [
-        dbc.Card(
-            [
-                html.H2(f"{ed_bed:.2f}", className="card-title"),
-                html.P("Average ED Bed Occupancy", className="card-text"),
-            ],
-            body=True,
-            color="light",
-        ),
-        dbc.Card(
-            [
-                html.H2(f"{arrival_intensity:.2f}", className="card-title"),
-                html.P("AVG Arrival within preceding hour", className="card-text"),
-            ],
-            body=True,
-            color="dark",
-            inverse=True,
-        ),
-        dbc.Card(
-            [
-                html.H2(f"{las_intensity:.2f}", className="card-title"),
-                html.P("Ambulance Arrival Intensity", className="card-text"),
-            ],
-            body=True,
-            color="primary",
-            inverse=True,
-        ),
-        dbc.Card(
-            [
-                html.H2(f"{lwbs_intensity:.2f}", className="card-title"),
-                html.P("LWBS intensity", className="card-text"),
-            ],
-            body=True,
-            color="light",
-        ),
-        ]
-        return f"ER Thresholds", [dbc.Col(card) for card in cards]
-        
-
-@callback(
         Output('output-title-2', 'children'), 
         Output('output-badges', 'children'),
         Input('graph-button','n_clicks'),
         State('stored-data','data'))
 def generate_bagdes(n,data):
     if n is None:
-        return dash.no_update
+        return no_update
     else:
         raw_er_admission = pd.DataFrame.from_dict(data)
         ed_bed = round(raw_er_admission['ED bed occupancy'].median(),2)
