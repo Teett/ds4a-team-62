@@ -29,42 +29,42 @@ layout = html.Div(
             [
                 dbc.Col(
                     [
-                        html.Div("Luis Felipe Serna"),
+                        html.H5("Luis Felipe Serna"),
                         html.Br(),
                         html.Img(src = luis,style={'height':'60%', 'width':'60%'})
                     ]   
                         ),
                 dbc.Col(
                     [
-                        html.Div("Luis Daniel Chavarria"),
+                        html.H5("Luis Daniel Chavarria"),
                         html.Br(),
                         html.Img(src = daniel,style={'height':'60%', 'width':'60%'})
                     ]   
                         ),
                 dbc.Col(
                     [
-                        html.Div("Maria Paula Alvarez"),
+                        html.H5("Maria Paula Alvarez"),
                         html.Br(),
                         html.Img(src = maria,style={'height':'60%', 'width':'60%'})
                     ]   
                         ),
                 dbc.Col(
                     [
-                        html.Div("Juan Barrios"),
+                        html.H5("Juan Barrios"),
                         html.Br(),
                         html.Img(src = juan,style={'height':'60%', 'width':'60%'})
                     ]   
                         ),                    
                 dbc.Col(
                     [
-                        html.Div("Jeyson Guzman"),
+                        html.H5("Jeyson Guzman"),
                         html.Br(),
                         html.Img(src = jeyson,style={'height':'60%', 'width':'60%'})
                     ]
                         ),
                 dbc.Col(
                     [
-                        html.Div("Cristian Rodriguez"),
+                        html.H5("Cristian Rodriguez"),
                         html.Br(),
                         html.Img(src = cristian,style={'height':'60%', 'width':'60%'})
                     ]
