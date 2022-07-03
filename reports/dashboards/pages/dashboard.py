@@ -238,12 +238,10 @@ def make_graphs(n):
         )
         df = daily_admissions.copy()
         #df['Expected_ER_stay'] =  waiting for regression model
-        print(df.columns)
         df['Status'] = y_pred
         df['Hosp_prob'] = y_prob_list
         df['Hosp_prob'] = df.loc[:,'Hosp_prob'].apply(lambda x: round(x,4))
         df_table = df[['Site','Age_band','Gender','Status','Hosp_prob']]
-        print(df_table.columns)
         dict_admissions = {0: 'Expected Admission', 1: 'Might Not be Admitted'}
         dict_gen = {0: 'male', 1: 'female'}
         dict_age = {0: '16-34',
