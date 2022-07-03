@@ -1,6 +1,6 @@
 #libraries
 
-from dash import Dash, html , dcc, dash_table, Input, Output, callback, State, no_update
+from dash import html , dcc, dash_table, Input, Output, callback, State, no_update
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash_labs.plugins import register_page
@@ -16,6 +16,7 @@ from components.data_requests.get_df import get_generate_df
 from components.data_requests.data_transformation import transform_data
 import pickle
 import dash_daq as daq
+from visualization import visualize
 
 
 # dash-labs plugin call, menu name and route
@@ -35,6 +36,7 @@ bed_occupancy = raw_er_admission['Inpatient_bed_occupancy'].mean()
 arrival_intensity = raw_er_admission['Arrival intensity'].mean()
 las_intensity = raw_er_admission['LAS intensity'].mean()
 lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
+stay_length = raw_er_admission['Stay_length'].mean()
 
 cards = [
 dbc.Card(
@@ -110,13 +112,20 @@ layout = html.Div(
         html.Br(),
         html.Div([
             html.H4(id= "output-title-2"),
+            html.Br(),
             dbc.Row(id ='output-badges'),
+            html.Br(),
+            html.H4(id= 'output-title-3'),
             html.Br(),
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
-                dbc.Col(id='output-div-2', style = {'width': '50%'}),
+                dbc.Col(id='output-table', style = {'width':'50%'})
                     ]
-                )
+                ),
+            dbc.Row([
+                dbc.Col(id='output-div-2', style = {'width': '25%'}),
+                dbc.Col(id='output-div-3', style = {'width': '25%'})
+            ])
             ]
         ),
         html.Div(id='output-datatable'),
@@ -189,67 +198,104 @@ def save_in_db(n, data):
 @callback(
         Output('output-div', 'children'),
         Output('output-div-2', 'children'),
+        Output('output-div-3', 'children'),
+        Output('output-table', 'children'),
+        Output('output-title-3', 'children'),
         Input('graph-button','n_clicks'),
-        State('stored-data','data'))
-def make_graphs(n,data):
+        )
+def make_graphs(n):
     if n is None:
         return no_update
     else:
-        daily_admisions = get_generate_df()
-        adm_dummies = transform_data(daily_admisions)
+        daily_admissions = get_generate_df()
+        adm_dummies = transform_data(daily_admissions)
         y_prob =model.predict_proba(adm_dummies) 
         y_pred = (y_prob[:,1] >= 0.25).astype(int)
-        y_pred_list = y_pred.tolist()
-        y_pred_dict = {'Admitted': y_pred_list.count(1), 'Not Admitted': y_pred_list.count(0)}
-        df = pd.DataFrame(y_pred_dict, index=['Pred']).transpose().reset_index()
-        df.rename(columns ={'index':'Status'},inplace=True)
-
-        fig_1 = px.bar(df, x='Pred', color = 'Status')
-        fig_1.update_xaxes(visible=False, showticklabels=False)
-        fig_1.update_layout( yaxis_title= "Count")
-
+        fig_1 = visualize.admissions_plot(y_pred,daily_admissions)
         #y_pred_dict['Admitted'] / (y_pred_dict['Admitted'] + y_pred_dict['Not Admitted'])
-        
         fig_2 = daq.Gauge(
-            color={"gradient":True,"ranges":{"green":[0.7,1],"yellow":[0.4,0.7],"red":[0,0.4]}},
+            color={"gradient":True,"ranges":{"green":[0.65,1],"yellow":[0.35,0.65],"red":[0,0.35]}},
             value=y_prob.mean().item(),
             label='Average Probability of Hospitalization',
             max=1,
             min=0,
             size = 300
         )
-        return dcc.Graph(figure=fig_1), fig_2
-  
+        fig_3 = daq.Gauge(
+            color={"gradient":True,"ranges":{"green":[0,75],"yellow":[75,120],"red":[120,200]}},
+            #value=y_prob.mean().item(),
+            value = 80, #testing value until we have regression model
+            label='Average time in Emergency Dept.',
+            max=200,
+            min=0,
+            size = 300
+        )
+        df = daily_admissions.copy()
+        #df['Expected_ER_stay'] =  waiting for regression model
+        df['Status'] = y_pred
+        y_prob_list = y_prob.tolist()
+        y_prob_list_final = []
+        for i in y_prob_list:
+            y_prob_list_final.append(round(i,2))
+        df['Hosp_prob'] = y_prob_list_final
+        df_table = df[['Site','Age_band','Gender','Status','Hosp_prob']]
+        table = dash_table.DataTable(
+                data=df_table.to_dict('records'),
+                columns=[{'name': i, 'id': i} for i in df_table.columns],
+                page_size=15
+            ),
+        return dcc.Graph(figure=fig_1), fig_2, fig_3, table, f"Expected Predictions"
+
 @callback(
         Output('output-title-2', 'children'), 
         Output('output-badges', 'children'),
-        Input('graph-button','n_clicks'),
-        State('stored-data','data'))
-def generate_bagdes(n,data):
+        Input('graph-button','n_clicks')
+        )
+def generate_bagdes(n):
     if n is None:
         return no_update
     else:
-        raw_er_admission = pd.DataFrame.from_dict(data)
-        ed_bed = round(raw_er_admission['ED bed occupancy'].median(),2)
-        arrival_intensity = round(raw_er_admission['Arrival intensity'].median(),2)
-        las_intensity = round(raw_er_admission['LAS intensity'].median(),2)
-        lwbs_intensity = round(raw_er_admission['LWBS intensity'].median(),2)
+        er_admission = get_generate_df()
+        ed_bed = round(er_admission['Inpatient_bed_occupancy'].mean(),2)
+        arrival_intensity = round(er_admission['Arrival intensity'].mean(),2)
+        las_intensity = round(er_admission['LAS intensity'].mean(),2)
+        lwbs_intensity = round(er_admission['LWBS intensity'].mean(),2)
 
-        # ER Thresholds# ##Define Thresholds con Daniel ####
+        # Using ER Thresholds for Bagdes Kpis later on: ##
 
-        if ed_bed > 1.7:
+        # Badge 1:
+        if  ed_bed >= 0.90:
             badge_1 = 'Danger'
-        if arrival_intensity > 23:
+        elif ed_bed >= 0.80 and ed_bed < 0.90:
+            badge_1 = 'Warning'
+        else:
+            bagde_1 = 'Normal'
+        # Badge 2:
+        if arrival_intensity >= 20:
+            badge_2 = 'Danger' 
+        elif arrival_intensity >= 15 and arrival_intensity <20:
             badge_2 = 'Warning'
-        if las_intensity > 0.15:
-            badge_3 = 'Approved'
-        # if lwbs_intensity > 0.06:
-        #     badge_4 = 'Danger'
-
-        kpi1 = kpibadge(ed_bed, 'Average ED Bed Occupancy', badge_1)
-        kpi2 = kpibadge(arrival_intensity, 'AVG Arrival within preceding hour', badge_2)
-        kpi3 = kpibadge(las_intensity, 'Ambulance Arrival Intensity', badge_3)
-        kpi4 = kpibadge(lwbs_intensity,'LWBS intensity', "Danger")
+        else:
+            badge_2 = 'Normal' 
+        # Badge 3:
+        if las_intensity >= 0.50:
+            badge_3 = 'Danger'
+        if las_intensity >= 0.30 and las_intensity < 0.50:
+            badge_3 = 'Warning'
+        else:
+            badge_3 = 'Normal'
+        # Badge 4:
+        if lwbs_intensity >= 0.15:
+            badge_4 = 'Danger'
+        elif lwbs_intensity >= 0.7 and lwbs_intensity < 0.15:
+            badge_4 = 'Warning'
+        else:
+            badge_4 = 'Normal'
+        
+        kpi1 = kpibadge(f"{ed_bed*100:.2f}%", 'Average ED Bed Occupancy', badge_1)
+        kpi2 = kpibadge(f"{arrival_intensity:.2f}", 'AVG Arrival within preceding hour', badge_2)
+        kpi3 = kpibadge(f"{las_intensity*100:.2f}%", 'Ambulance Arrival Intensity', badge_3)
+        kpi4 = kpibadge(f"{lwbs_intensity*100:.2f}%",'LWBS intensity', badge_4)
         badges = [  
                 kpi1.display(),
                 kpi2.display(),

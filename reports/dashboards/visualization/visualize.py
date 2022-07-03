@@ -104,3 +104,22 @@ def logistic_regression_plot(regression_df):
     Plots a logistic regression plot of the provided df.
     '''
     plot = px.scatter(regression_df, x='rowname', y='fitted', color='admitted')
+    return plot
+
+def admissions_plot(pred_result,df):
+    y_pred_list = pred_result.tolist()
+    df['Status'] = y_pred_list
+    plot_df = df[['Site', 'Status']].value_counts().to_frame().reset_index()
+    dict_site = {  1: 'Site 1',
+                2: 'Site 2',
+                3: 'Site 3' }
+    plot_df = plot_df.replace({'Site': dict_site})
+    dict_admissions = {0: 'Expected Admission', 1: 'Might Not be Admitted'}
+    plot_df = plot_df.replace({'Status': dict_admissions})
+    plot_df
+    plot_df.rename(columns={0: 'patients_count'}, inplace=True)
+    plot=px.bar(plot_df, x='Site', y='patients_count',
+                color='Status',
+                title='Admissions Predictions', 
+                text_auto=True)
+    return plot
