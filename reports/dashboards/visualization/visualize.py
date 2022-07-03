@@ -2,8 +2,9 @@ import plotly.express as px
 import pandas as pd
 
 def correlation_plot(df):
-    df.drop(['Consultant_on_duty','DayWeek_coded','Inpatient_bed_occupancy'], axis = 1, inplace = True)
-    correlations = df.corr()
+    corr_df = df.copy()
+    corr_df.drop(['Consultant_on_duty','DayWeek_coded','Inpatient_bed_occupancy'], axis = 1, inplace = True)
+    correlations = corr_df.corr()
     corr_plot = px.imshow(correlations, text_auto = True, aspect = 'auto')
     corr_plot.update_layout(title="Variables Correlation")
     return corr_plot
@@ -115,6 +116,7 @@ def patients_per_week(df):
     plot_df.rename(columns={'DayWeek_coded': 'Day of Week', 'Shift_coded': 'Shift', 0: 'patients_count'}, inplace=True)
     plot=px.bar(plot_df, x='Day of Week', y='patients_count',
                 color='Shift',
+                color_discrete_sequence=px.colors.qualitative.Pastel,
                 title='Amount of patiens per day of Week', 
                 text_auto=True)
     return plot
@@ -135,11 +137,19 @@ def ambulance_ratio_week(df):
     plot_df.rename(columns={'DayWeek_coded': 'Day of Week', 'Shift_coded': 'Shift'}, inplace=True)
     plot=px.bar(plot_df, x='Day of Week', y='LAS intensity',
                 color='Shift',
+                #color_discrete_sequence=px.colors.qualitative.Pastel,
                 title='Arrival by ambulance ratio per day of week', 
                 text_auto=True,
                 )
     return plot
 
+def ambulance_shift_ratio(df):
+    plot_df = df.groupby('Shift_coded').mean()['LAS intensity'].to_frame().reset_index()
+    dict_shift = {0: 'Night', 1: 'Day'}
+    plot_df = plot_df.replace({'Shift_coded': dict_shift})
+    plot = px.bar(plot_df, x = 'LAS intensity', y ='Shift_coded', orientation = 'h', title = 'Ratio of arrivals by ambulance in each Shift')
+    plot.update_layout( yaxis_title= "Shift", xaxis_title = 'Ambulance Arrival Intensity Ratio')
+    return plot
 
 def logistic_regression_plot(regression_df):
     '''

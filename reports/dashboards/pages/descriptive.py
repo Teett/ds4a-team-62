@@ -29,25 +29,27 @@ layout = html.Div(
         html.Div([
             dbc.Row(
                 [
-                    dbc.Col(dcc.Graph(id = "age-band"),style = {'width' : '33%'}),
-                    dbc.Col(dcc.Graph( id = 'ethnicity-plot'),style = {'width' : '33%'}),
-                    dbc.Col(dcc.Graph( id = 'acsc-plot'),style = {'width' : '33%'})
+                    dbc.Col(dcc.Graph(id = "age-band"),style = {'width' : '50%'}),
+                    dbc.Col(dcc.Graph( id = 'ethnicity-plot'),style = {'width' : '50%'})
                     ]),
             dbc.Row(
                 [
-                    dbc.Col(dcc.Graph( id = 'ambulance-plot')),
-                    dbc.Col(dcc.Graph( id = 'ambulance-shift'))
+                    dbc.Col(dcc.Graph( id = 'ambulance-plot'),style = {'width':'50%'}),
+                    dbc.Col(dcc.Graph( id = 'ambulance-shift'),style = {'width':'50%'}),
                 ]
             ),
-        html.Br(),
-        # dbc.Row( 
-        #     [   
-        #         html.H4('Bed Occupancy and Ambulance Intensity in ER:'),
-        #         dbc.Col(id = 'output-table')
-        #     ]
-        # ),
-        html.Br(),
-        dbc.Row(dcc.Graph(id = "corr-plot")),
+            dbc.Row(
+                [
+                    dbc.Col(dcc.Graph( id = 'patients-week'), style = {'width' : '50%'}),
+                    dbc.Col(dcc.Graph( id = 'acsc-plot'),style = {'width' : '50%'})
+                ]),
+            html.Br(),  
+            # dbc.Row([
+            # html.H5('Bed Occupancy and Ambulance Intensity in ER:'),
+            # html.Div(id = 'output-table'),
+            # ]),
+            html.Br(),
+            dbc.Row(dcc.Graph(id = "corr-plot")),
             ]
         )
     ]
@@ -58,9 +60,10 @@ layout = html.Div(
         Output("corr-plot", "figure"),
         Output("ethnicity-plot", "figure"),
         Output("acsc-plot", "figure"),
+        Output("patients-week", "figure"),
         Output("ambulance-plot", "figure"),
         Output("ambulance-shift", "figure"),
-        Output("ouput-table", "children"),
+        #Output("output-table", "children"),
         Input('update-data','n_clicks'))
 def update_plot (n):
     if n is None:
@@ -71,16 +74,16 @@ def update_plot (n):
         corr_fig = visualize.correlation_plot(daily_admissions)
         et_plot = visualize.ethnicity_plot(daily_admissions)
         acsc_plot = visualize.acsc_plot(daily_admissions)
-        # ambulance_plot = visualize.ambulance_ratio_week(daily_admissions)
-        # ambulance_shift= daily_admissions.groupby('Shift_coded').mean()['LAS intensity'].to_frame().reset_index()
-        # dict_shift = {0: 'Night', 1: 'Day'}
-        # ambulance_shift = ambulance_shift.replace({'Shift_coded': dict_shift})
-        # ambulance_shift = px.bar(ambulance_shift, x = 'LAS intensity', y ='Shift_coded', orientation = 'h', title = 'Ratio of arrivals by ambulance in each Shift')
-        # ambulance_shift.update_layout( yaxis_title= "Shift", xaxis_title = 'Ambulance Arrival Intensity Ratio')
-        # df_table = daily_admissions.groupby(['Site','DayWeek_coded','Shift_coded']).mean()[['Inpatient_bed_occupancy','LAS intensity','LWBS intensity']].reset_index()
+        ambulance_plot = visualize.ambulance_ratio_week(daily_admissions)
+        patients_week = visualize.patients_per_week(daily_admissions)
+        ambulance_shift = visualize.ambulance_shift_ratio(daily_admissions)
+        df_table = daily_admissions.groupby(['Site','DayWeek_coded','Shift_coded']).mean()[['Inpatient_bed_occupancy','LAS intensity','LWBS intensity']].reset_index()
+        print(df_table)
+        data=df_table.to_dict('records')
+        print(data)
         # table = dash_table.DataTable(
         #         data=df_table.to_dict('records'),
         #         columns=[{'name': i, 'id': i} for i in df_table.columns],
         #         page_size=5
         #     ),       
-        return age_fig, corr_fig, et_plot, acsc_plot#, ambulance_plot, ambulance_shift, table 
+        return age_fig, corr_fig, et_plot, acsc_plot,patients_week,ambulance_plot,ambulance_shift#, table
