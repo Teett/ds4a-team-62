@@ -118,14 +118,15 @@ layout = html.Div(
             html.H4(id= 'output-title-3'),
             html.Br(),
             dbc.Row([
+                dbc.Col(id='output-div-2', style = {'width': '25%'}),
+                dbc.Col(id='output-div-3', style = {'width': '25%'})
+            ]),
+            html.Br(),
+            dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
                 dbc.Col(id='output-table', style = {'width':'50%'})
                     ]
                 ),
-            dbc.Row([
-                dbc.Col(id='output-div-2', style = {'width': '25%'}),
-                dbc.Col(id='output-div-3', style = {'width': '25%'})
-            ])
             ]
         ),
         html.Div(id='output-datatable'),
@@ -211,11 +212,16 @@ def make_graphs(n):
         adm_dummies = transform_data(daily_admissions)
         y_prob =model.predict_proba(adm_dummies) 
         y_pred = (y_prob[:,1] >= 0.25).astype(int)
-        fig_1 = visualize.admissions_plot(y_pred,daily_admissions)
+        y_prob_list = []
+        for i in y_prob:
+            y_prob_list.append(i[0])
+        gauge_value = sum(y_prob_list)/len(y_prob_list)
+        df_fig = daily_admissions.copy()
+        fig_1 = visualize.admissions_plot(y_pred,df_fig)
         #y_pred_dict['Admitted'] / (y_pred_dict['Admitted'] + y_pred_dict['Not Admitted'])
         fig_2 = daq.Gauge(
             color={"gradient":True,"ranges":{"green":[0.65,1],"yellow":[0.35,0.65],"red":[0,0.35]}},
-            value=y_prob.mean().item(),
+            value= gauge_value,
             label='Average Probability of Hospitalization',
             max=1,
             min=0,
@@ -232,17 +238,25 @@ def make_graphs(n):
         )
         df = daily_admissions.copy()
         #df['Expected_ER_stay'] =  waiting for regression model
+        print(df.columns)
         df['Status'] = y_pred
-        y_prob_list = y_prob.tolist()
-        y_prob_list_final = []
-        for i in y_prob_list:
-            y_prob_list_final.append(round(i,2))
-        df['Hosp_prob'] = y_prob_list_final
+        df['Hosp_prob'] = y_prob_list
+        df['Hosp_prob'] = df.loc[:,'Hosp_prob'].apply(lambda x: round(x,4))
         df_table = df[['Site','Age_band','Gender','Status','Hosp_prob']]
+        print(df_table.columns)
+        dict_admissions = {0: 'Expected Admission', 1: 'Might Not be Admitted'}
+        dict_gen = {0: 'male', 1: 'female'}
+        dict_age = {0: '16-34',
+                1: '35-64',
+                2: '65-84',
+                3: '85 and over'}
+        df_table.replace({'Gender': dict_gen,
+                    'Status': dict_admissions,
+                    'Age_band': dict_age}, inplace = True)
         table = dash_table.DataTable(
                 data=df_table.to_dict('records'),
                 columns=[{'name': i, 'id': i} for i in df_table.columns],
-                page_size=15
+                page_size=12
             ),
         return dcc.Graph(figure=fig_1), fig_2, fig_3, table, f"Expected Predictions"
 
