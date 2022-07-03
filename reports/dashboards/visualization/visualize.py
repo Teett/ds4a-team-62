@@ -99,6 +99,48 @@ def acsc_plot(df):
                 text_auto=True)
     return plot
 
+def patients_per_week(df):
+    plot_df = df[['DayWeek_coded', 'Shift_coded']].value_counts().to_frame().reset_index()
+    dict_week = { 1: 'Monday',
+                2: 'Tuesday',
+                3: 'Wednesday',
+                4: 'Thursday',
+                5: 'Friday',
+                6: 'Saturday',
+                7: 'Sunday'  }
+    plot_df = plot_df.replace({'DayWeek_coded': dict_week})
+    dict_shift = {0: 'Night', 1: 'Day'}
+    plot_df = plot_df.replace({'Shift_coded': dict_shift})
+    plot_df
+    plot_df.rename(columns={'DayWeek_coded': 'Day of Week', 'Shift_coded': 'Shift', 0: 'patients_count'}, inplace=True)
+    plot=px.bar(plot_df, x='Day of Week', y='patients_count',
+                color='Shift',
+                title='Amount of patiens per day of Week', 
+                text_auto=True)
+    return plot
+
+def ambulance_ratio_week(df):
+    plot_df = df.groupby(['DayWeek_coded','Shift_coded']).mean()['LAS intensity'].to_frame().reset_index()
+    dict_week = { 1: 'Monday',
+                2: 'Tuesday',
+                3: 'Wednesday',
+                4: 'Thursday',
+                5: 'Friday',
+                6: 'Saturday',
+                7: 'Sunday'  }
+    plot_df = plot_df.replace({'DayWeek_coded': dict_week})
+    dict_shift = {0: 'Night', 1: 'Day'}
+    plot_df = plot_df.replace({'Shift_coded': dict_shift})
+    plot_df
+    plot_df.rename(columns={'DayWeek_coded': 'Day of Week', 'Shift_coded': 'Shift'}, inplace=True)
+    plot=px.bar(plot_df, x='Day of Week', y='LAS intensity',
+                color='Shift',
+                title='Arrival by ambulance ratio per day of week', 
+                text_auto=True,
+                )
+    return plot
+
+
 def logistic_regression_plot(regression_df):
     '''
     Plots a logistic regression plot of the provided df.
