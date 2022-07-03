@@ -118,8 +118,8 @@ layout = html.Div(
             html.H4(id= 'output-title-3'),
             html.Br(),
             dbc.Row([
-                dbc.Col(id='output-div-2', style = {'width': '25%'}),
-                dbc.Col(id='output-div-3', style = {'width': '25%'})
+                dbc.Col(id='output-div-2', style = {'width': '50%'}),
+                dbc.Col(id='output-div-3', style = {'width': '50%'})
             ]),
             html.Br(),
             dbc.Row([
