@@ -151,13 +151,6 @@ def ambulance_shift_ratio(df):
     plot.update_layout( yaxis_title= "Shift", xaxis_title = 'Ambulance Arrival Intensity Ratio')
     return plot
 
-def logistic_regression_plot(regression_df):
-    '''
-    Plots a logistic regression plot of the provided df.
-    '''
-    plot = px.scatter(regression_df, x='rowname', y='fitted', color='admitted')
-    return plot
-
 def admissions_plot(pred_result,df):
     y_pred_list = pred_result.tolist()
     df['Status'] = y_pred_list
@@ -174,4 +167,11 @@ def admissions_plot(pred_result,df):
                 color='Status',
                 title='Admissions Predictions', 
                 text_auto=True)
+    return plot
+
+def logistic_regression_plot(regression_df):
+    '''
+    Plots a logistic regression plot of the provided df.
+    '''
+    plot = px.scatter(regression_df, x='rowname', y='fitted', color='admitted')
     return plot
