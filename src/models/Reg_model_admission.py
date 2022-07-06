@@ -16,7 +16,7 @@ sns.histplot(data = pd.DataFrame(y_train), x = "Stay_length")
 #%%
 modelo = ElasticNetCV(
             l1_ratio        = [0, 0.1, 0.5, 0.7, 0.9, 0.95, 0.99],
-            alphas          = np.logspace(-25, 3, 100),
+            alphas          = np.logspace(-10, 3, 100),
             cv              = 5,
             random_state    = 1995,  
             max_iter        = 4500,
@@ -24,7 +24,7 @@ modelo = ElasticNetCV(
          )
 
 y_train_transformed = np.log(y_train + 1)
-modelo = modelo.fit(X = X_train, y = y_train_transformed)
+modelo = modelo.fit(X = X_train, y = y_train)
 
 
 #%%
@@ -81,9 +81,8 @@ df_pred["pred_exp"] = np.exp(df_pred.pred) - 1
 
 rmse_elastic = mean_squared_error(
                 y_true  = y_test,
-                y_pred  = df_pred.pred_exp,
+                y_pred  = predicciones,
                 squared = False
                )
-print("")
 print(f"El error (rmse) de test es: {rmse_elastic}")
 # %%
