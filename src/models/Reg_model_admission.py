@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import ElasticNetCV
 from sklearn.metrics import mean_squared_error
 import numpy as np
-
-
+import seaborn as sns
 # %% read data 
 X_train = pd.read_pickle('../../data/processed/stay/X_train_stay.pickle')
 X_test = pd.read_pickle('../../data/processed/stay/X_test_stay.pickle')
@@ -13,16 +12,19 @@ y_train = pd.read_pickle('../../data/processed/stay/y_train_stay.pickle')
 y_test = pd.read_pickle('../../data/processed/stay/y_test_stay.pickle')
 
 
+sns.histplot(data = pd.DataFrame(y_train), x = "Stay_length")
 #%%
 modelo = ElasticNetCV(
             l1_ratio        = [0, 0.1, 0.5, 0.7, 0.9, 0.95, 0.99],
             alphas          = np.logspace(-25, 3, 100),
-            cv              = 10,
+            cv              = 5,
             random_state    = 1995,  
-            max_iter        = 3500,
+            max_iter        = 4500,
             n_jobs          = 4
          )
-modelo = modelo.fit(X = X_train, y = y_train)
+
+y_train_transformed = np.log(y_train + 1)
+modelo = modelo.fit(X = X_train, y = y_train_transformed)
 
 
 #%%
@@ -73,9 +75,13 @@ ax.set_title('Coeficientes del modelo');
 predicciones = modelo.predict(X=X_test)
 predicciones = predicciones.flatten()
 
+df_pred = pd.DataFrame({"pred": predicciones})
+df_pred["pred_exp"] = np.exp(df_pred.pred) - 1
+
+
 rmse_elastic = mean_squared_error(
                 y_true  = y_test,
-                y_pred  = predicciones,
+                y_pred  = df_pred.pred_exp,
                 squared = False
                )
 print("")
