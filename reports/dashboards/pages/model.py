@@ -7,6 +7,7 @@ from dash_labs.plugins import register_page
 from components.data_requests.data_transformation import transform_data
 from components.data_requests.get_df import get_generate_df
 from models.predict_model import get_hosp_probabilities, get_hosp_pred
+from visualization import visualize
 
 # dash-labs plugin call, menu name and route
 register_page(__name__, path='/the-model')
@@ -35,6 +36,8 @@ except:
     y_pred = pd.Series(data=d)
     regression_df = pd.concat([pd.DataFrame(y_prob),pd.DataFrame(y_pred)], axis = 1)
     regression_df["rowname"] = regression_df.index
+
+print(regression_df)
 
 layout = html.Div(
     [
@@ -143,12 +146,7 @@ def generate_cards(option_selected):
         return [dbc.Col(card) for card in cards_2]
 
 
-# @callback(
-#     Output('output-graph', 'figure'),
-#     Input('ML-models','value')
-# )
-# def update_figure():
-    # -- Waiting for Daniel to finish to set up the graph
+ 
 
 @callback(
     Output('output-image1', 'children'),
@@ -170,4 +168,27 @@ def update_images(option_selected):
         return image_1, image_2, f"Precision-Recall Threshold", f"Test Confussion Matrix"
     else:
         pass
+
+# @callback(
+#     Output('output-graph', 'figure'),
+#     Output('output-image1', 'children'),
+#     Output('output-image2', 'children'),
+#     Output('output-title','children'),
+#     Output('output-title2','children'),
+#     Input('ML-models','value')
+# )
+# def update_images(option_selected, regression_df):
+#     if option_selected is None:
+#         return no_update
+#     elif option_selected == 'admission':
+#         image_1 = html.Img(src = 'assets/models_admission/precision_recall_threshold.png'
+#                         ,style={'height':'85%', 'width':'85%'}
+#                         ),
+#         image_2 = html.Img(src = 'assets/models_admission/test_confussion_matrix.png'
+#                         ,style={'height':'85%', 'width':'85%'}
+#                         ),
+#         plot_1 = visualize.logistic_regression_plot(regression_df)
+#         return plot_1, image_1, image_2, f"Precision-Recall Threshold", f"Test Confussion Matrix"
+#     else:
+#         pass
                 

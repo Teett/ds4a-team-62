@@ -173,5 +173,5 @@ def logistic_regression_plot(regression_df):
     '''
     Plots a logistic regression plot of the provided df.
     '''
-    plot = px.scatter(regression_df, x='rowname', y='fitted', color='admitted')
+    plot = px.scatter(regression_df, x='rowname', y='y_prob', color='y_pred')
     return plot
