@@ -73,7 +73,7 @@ layout = html.Div(
                         dbc.Col(id='output-image1'),
                         dbc.Col(id='output-image2')
                     ]
-                )
+                ),
             ]
         )
     ], className='card'
@@ -172,8 +172,16 @@ def update_images(option_selected):
                         ,style={'height':'85%', 'width':'85%'}
                         ),
         return image_1, image_2, f"Precision-Recall Threshold", f"Test Confussion Matrix"
+    elif option_selected == 'stay_length':
+        image_3 = html.Img(src = 'assets/models_stay/Regression_1.png'
+                        ,style={'height':'85%', 'width':'85%'}
+                        ),
+        image_4 = html.Img(src = 'assets/models_stay/Regression_2.png'
+                        ,style={'height':'85%', 'width':'85%'}
+                        ),
+        return image_3, image_4, f"Evolution of CrossValidation in function of L1 Ratio", f"Model Coeficients"
     else:
-        pass
+        return no_update
 
 @callback(
     Output('output-graph', 'figure'),
@@ -187,5 +195,8 @@ def generate_log_reg(option_selected):
         return plot_1
     else:
         pass
+    #elif option_selected == 'stay_length':
+        
+        
 
                 
