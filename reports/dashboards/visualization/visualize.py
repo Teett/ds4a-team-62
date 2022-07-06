@@ -173,5 +173,6 @@ def logistic_regression_plot(regression_df):
     '''
     Plots a logistic regression plot of the provided df.
     '''
+    #plot_df = regression_df.sort_values(by = ['y_prob'])
     plot = px.scatter(regression_df, x='rowname', y='y_prob', color='y_pred')
     return plot

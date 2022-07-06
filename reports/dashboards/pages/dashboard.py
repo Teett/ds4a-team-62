@@ -17,6 +17,7 @@ from components.data_requests.data_transformation import transform_data
 import pickle
 import dash_daq as daq
 from visualization import visualize
+from models.predict_model import get_hosp_probabilities, get_hosp_pred
 
 
 # dash-labs plugin call, menu name and route
@@ -210,20 +211,16 @@ def make_graphs(n):
     else:
         daily_admissions = get_generate_df()
         adm_dummies = transform_data(daily_admissions)
-        y_prob =model.predict_proba(adm_dummies) 
-        y_pred = (y_prob[:,1] >= 0.25).astype(int)
-        y_prob_list = []
-        for i in y_prob:
-            y_prob_list.append(i[0])
+        y_prob_list = get_hosp_probabilities(adm_dummies)
+        y_pred = get_hosp_pred(adm_dummies)
         gauge_value = sum(y_prob_list)/len(y_prob_list)
         df_fig = daily_admissions.copy()
         fig_1 = visualize.admissions_plot(y_pred,df_fig)
-        #y_pred_dict['Admitted'] / (y_pred_dict['Admitted'] + y_pred_dict['Not Admitted'])
         fig_2 = daq.Gauge(
-            color={"gradient":True,"ranges":{"green":[0.65,1],"yellow":[0.35,0.65],"red":[0,0.35]}},
+            color={"gradient":True,"ranges":{"green":[0.35,0.50],"yellow":[0.20,0.35],"red":[0,0.2]}},
             value= gauge_value,
             label='Average Probability of Hospitalization',
-            max=1,
+            max=0.5,
             min=0,
             size = 300
         )
@@ -242,7 +239,7 @@ def make_graphs(n):
         df['Hosp_prob'] = y_prob_list
         df['Hosp_prob'] = df.loc[:,'Hosp_prob'].apply(lambda x: round(x,4))
         df_table = df[['Site','Age_band','Gender','Status','Hosp_prob']]
-        dict_admissions = {0: 'Expected Admission', 1: 'Might Not be Admitted'}
+        dict_admissions = {1: 'Expected Admission', 0: 'Might Not be Admitted'}
         dict_gen = {0: 'male', 1: 'female'}
         dict_age = {0: '16-34',
                 1: '35-64',
