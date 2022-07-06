@@ -1,11 +1,12 @@
 # %% libraries
-from statistics import mean
 import pandas as pd
-import matplotlib.pyplot as plt
 import pickle
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn import model_selection
-from sklearn.metrics import r2_score, make_scorer, mean_squared_error
+from xgboost import XGBRegressor
+from sklearn.metrics import mean_squared_error
+import seaborn as sns
 
 # %% read data 
 X_train = pd.read_pickle('../../data/processed/stay/X_train_stay.pickle')
@@ -27,25 +28,25 @@ def run_exps(x_train: pd.DataFrame , y_train: pd.DataFrame, x_test: pd.DataFrame
     
     dfs = []
     models = [
-            ('LinReg', LinearRegression())
+            ('LinReg', LinearRegression()),
+            ('Boosting_Regression', GradientBoostingRegressor()),
+            ('Elastic_Net', GradientBoostingRegressor()),
+            ('XGB', XGBRegressor()),
+            #('BayesianRidge', GradientBoostingRegressor()),
+            #('SVR', SVR()),
+            #('Kernel_Ridge', KernelRidge()),
             ]
     results = []
     names = []
-    scoring = {
-    #'neg_mean_absolute_error': make_scorer(neg_mean_absolute_error), 
-    #'neg_mean_squared_error': make_scorer(neg_mean_squared_error), 
-    #'neg_median_absolute_error': make_scorer(neg_median_absolute_error), 
-    'r2': make_scorer(r2_score) 
-    }
-    
+        
     for name, model in models:
         kfold = model_selection.KFold(n_splits=10, shuffle=True, random_state=90210)
-        cv_results = model_selection.cross_validate(model, x_train, y_train, cv = kfold, scoring= ('r2', 'neg_mean_squared_error', 'neg_root_mean_squared_error') )
+        cv_results = model_selection.cross_validate(model, x_train, y_train, cv = kfold, scoring= ('neg_mean_absolute_error','neg_mean_absolute_percentage_error','neg_root_mean_squared_error'))
         regressor = model.fit(x_train, y_train)
         y_pred = regressor.predict(x_test)
         rmse = mean_squared_error(y_true= y_test, y_pred = y_pred, squared= False)
-        print(rmse)
         print(name)
+        print(rmse)
         results.append(cv_results)
         names.append(name)
         this_df = pd.DataFrame(cv_results)
@@ -57,13 +58,19 @@ def run_exps(x_train: pd.DataFrame , y_train: pd.DataFrame, x_test: pd.DataFrame
 
 models = run_exps(X_train, y_train, X_test, y_test)
 
+
 #%% 
 
-models[0].groupby('model')['test_neg_mean_squared_error', 'test_r2'].mean()
+models[0].groupby('model')['test_neg_mean_absolute_error', 'test_neg_mean_absolute_percentage_error', 'test_neg_root_mean_squared_error'].mean()
 
 #%%
 with open("../../models/stay/many_models_stay_1.pickle", "wb") as fp:   #Pickling
     pickle.dump(models, fp)
 
 
+# %%
+
+
+
+sns.histplot(data = pd.DataFrame(y_train), x= "Stay_length")
 # %%
