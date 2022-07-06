@@ -65,7 +65,11 @@ layout = html.Div(
         html.Br(),
         html.H4(id = 'output-title-graph'),
         html.H5(id = 'output-notes'),
-        dbc.Row(dcc.Graph(id ='output-graph')),
+        dbc.Row([
+            dbc.Col(dcc.Graph(id ='output-graph'),style = {'width' : '50%'}),
+            dbc.Col(dcc.Graph(id ='output-graph2'),style = {'width' : '50%'}),
+            ]
+        ),
         html.Br(),
         html.Div(
             [   
@@ -190,6 +194,7 @@ def update_images(option_selected):
 
 @callback(
     Output('output-graph', 'figure'),
+    Output('output-graph2', 'figure'),
     Output('output-title-graph', 'children'),
     Output('output-notes', 'children'),
     Input('ML-models','value')
@@ -199,7 +204,7 @@ def generate_log_reg(option_selected):
         return no_update
     elif option_selected == 'admission':
         plot_1 = visualize.logistic_regression_plot(df)
-        return plot_1, f"Logistic Regression of Patients in the ER waiting for Hospitalization", f"1: Expected Admission, 0: Might not be admitted"
+        return plot_1, plot_1, f"Logistic Regression of Patients in the ER waiting for Hospitalization", f"1: Expected Admission, 0: Might not be admitted"
     #elif option_selected == 'stay_length':
     else:
         pass
