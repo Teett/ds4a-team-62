@@ -28,7 +28,7 @@ adm_dummies.head()
 adm_dummies.isna().sum()
 # %% Train test splits
 # The reasoning behind the elimination of both variables is that none is known once the patient arrives to the ER
-X_train_stay, X_test_stay, y_train_stay, y_test_stay = train_test_split(adm_dummies.drop(['Admission_ALL', 'Stay_length'], axis = 1), 
+X_train_stay, X_test_stay, y_train_stay, y_test_stay = train_test_split(adm_dummies.drop(['Stay_length'], axis = 1), 
                                                                         adm_dummies["Stay_length"], test_size=0.2, random_state=1337)
 
 X_train_adm, X_test_adm, y_train_adm, y_test_adm = train_test_split(adm_dummies.drop(['Admission_ALL', 'Stay_length'], axis = 1), 
