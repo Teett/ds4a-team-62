@@ -301,10 +301,10 @@ def generate_bagdes(n):
         else:
             badge_4 = 'Normal'
         
-        kpi1 = kpibadge(f"{ed_bed*100:.2f}%", 'Average ED Bed Occupancy', badge_1)
-        kpi2 = kpibadge(f"{arrival_intensity:.2f}", 'AVG Arrival within preceding hour', badge_2)
-        kpi3 = kpibadge(f"{las_intensity*100:.2f}%", 'Ambulance Arrival Intensity', badge_3)
-        kpi4 = kpibadge(f"{lwbs_intensity*100:.2f}%",'LWBS intensity', badge_4)
+        kpi1 = kpibadge(f"{ed_bed*100:.2f}%", 'AVG Bed Occupancy', badge_1)
+        kpi2 = kpibadge(f"{arrival_intensity:.2f}", 'AVG Arrivals within the preceding hour', badge_2)
+        kpi3 = kpibadge(f"{las_intensity*100:.2f}%", 'AVG Arrivals by Ambulance', badge_3)
+        kpi4 = kpibadge(f"{lwbs_intensity*100:.2f}%",'Patients within the hour who leave without being seen by a Doctor', badge_4)
         badges = [  
                 kpi1.display(),
                 kpi2.display(),
@@ -312,4 +312,3 @@ def generate_bagdes(n):
                 kpi4.display()
         ] 
     return f"Current Kpis", [dbc.Col(badge) for badge in badges]
-      

@@ -44,10 +44,6 @@ layout = html.Div(
                     dbc.Col(dcc.Graph( id = 'acsc-plot'),style = {'width' : '50%'})
                 ]),
             html.Br(),  
-            # dbc.Row([
-            # html.H5('Bed Occupancy and Ambulance Intensity in ER:'),
-            # html.Div(id = 'output-table'),
-            # ]),
             html.Br(),
             dbc.Row(dcc.Graph(id = "corr-plot")),
             ]
@@ -63,7 +59,6 @@ layout = html.Div(
         Output("patients-week", "figure"),
         Output("ambulance-plot", "figure"),
         Output("ambulance-shift", "figure"),
-        #Output("output-table", "children"),
         Input('update-data','n_clicks'))
 def update_plot (n):
     if n is None:
@@ -77,13 +72,4 @@ def update_plot (n):
         ambulance_plot = visualize.ambulance_ratio_week(daily_admissions)
         patients_week = visualize.patients_per_week(daily_admissions)
         ambulance_shift = visualize.ambulance_shift_ratio(daily_admissions)
-        df_table = daily_admissions.groupby(['Site','DayWeek_coded','Shift_coded']).mean()[['Inpatient_bed_occupancy','LAS intensity','LWBS intensity']].reset_index()
-        print(df_table)
-        data=df_table.to_dict('records')
-        print(data)
-        # table = dash_table.DataTable(
-        #         data=df_table.to_dict('records'),
-        #         columns=[{'name': i, 'id': i} for i in df_table.columns],
-        #         page_size=5
-        #     ),       
-        return age_fig, corr_fig, et_plot, acsc_plot,patients_week,ambulance_plot,ambulance_shift#, table
+        return age_fig, corr_fig, et_plot, acsc_plot,patients_week,ambulance_plot,ambulance_shift

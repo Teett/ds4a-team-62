@@ -8,6 +8,7 @@ from components.data_requests.data_transformation import transform_data
 from components.data_requests.get_df import get_generate_df
 from models.predict_model import get_hosp_probabilities, get_hosp_pred
 from visualization import visualize
+import numpy as np
 
 # dash-labs plugin call, menu name and route
 register_page(__name__, path='/the-model')
@@ -31,7 +32,8 @@ try:
     df['y_pred'] = y_pred
     df['y_prob'] = y_prob
     df['y_prob'] = df.loc[:,'y_prob'].apply(lambda x: round(x,4))
-    df["rowname"] = df.index
+    df = df.sort_values(by = ['y_prob'])
+    df["row_number"] = np.arange(len(df))
 
 except:
     d = {'y_prob': 0}
@@ -60,6 +62,9 @@ layout = html.Div(
         html.Br(),
         dbc.Row(id = 'output-cards'),
         html.Br(),
+        html.Br(),
+        html.H4(id = 'output-title-graph'),
+        html.H5(id = 'output-notes'),
         dbc.Row(dcc.Graph(id ='output-graph')),
         html.Br(),
         html.Div(
@@ -123,7 +128,7 @@ def generate_cards(option_selected):
             dbc.Card(
                 [
                     html.H2(f"XX.XX%", className="card-title"),
-                    html.P("Model Testing Sensitivity", className="card-text"),
+                    html.P("Model RMSE", className="card-text"),
                 ],
                 body=True,
                 color="light",
@@ -132,7 +137,7 @@ def generate_cards(option_selected):
                 [
                     #html.H2(f"{test_acc*100:.2f}%", className="card-title"),
                     html.H2(f"XX.XX%", className="card-title"),
-                    html.P("Model Testing Specificity", className="card-text"),
+                    html.P("Model XXXX", className="card-text"),
                 ],
                 body=True,
                 color="dark",
@@ -141,7 +146,7 @@ def generate_cards(option_selected):
             dbc.Card(
                 [
                     #html.H2(f"{dfTrain.shape[0]} / {dfTest.shape[0]}", className="card-title"),
-                    html.H2(f" XXXX / XXXX", className="card-title"),
+                    html.H2(f" 13.529 / 6.208", className="card-title"),
                     html.P("Train / Test Split", className="card-text"),
                 ],
                 body=True,
@@ -166,18 +171,18 @@ def update_images(option_selected):
         return no_update
     elif option_selected == 'admission':
         image_1 = html.Img(src = 'assets/models_admission/precision_recall_threshold.png'
-                        ,style={'height':'85%', 'width':'85%'}
+                        ,style={'height':'80%', 'width':'80%'}
                         ),
         image_2 = html.Img(src = 'assets/models_admission/test_confussion_matrix.png'
-                        ,style={'height':'85%', 'width':'85%'}
+                        ,style={'height':'80%', 'width':'80%'}
                         ),
         return image_1, image_2, f"Precision-Recall Threshold", f"Test Confussion Matrix"
     elif option_selected == 'stay_length':
         image_3 = html.Img(src = 'assets/models_stay/Regression_1.png'
-                        ,style={'height':'85%', 'width':'85%'}
+                        ,style={'height':'80%', 'width':'80%'}
                         ),
         image_4 = html.Img(src = 'assets/models_stay/Regression_2.png'
-                        ,style={'height':'85%', 'width':'85%'}
+                        ,style={'height':'80%', 'width':'80%'}
                         ),
         return image_3, image_4, f"Evolution of CrossValidation in function of L1 Ratio", f"Model Coeficients"
     else:
@@ -185,6 +190,8 @@ def update_images(option_selected):
 
 @callback(
     Output('output-graph', 'figure'),
+    Output('output-title-graph', 'children'),
+    Output('output-notes', 'children'),
     Input('ML-models','value')
 )
 def generate_log_reg(option_selected):
@@ -192,10 +199,11 @@ def generate_log_reg(option_selected):
         return no_update
     elif option_selected == 'admission':
         plot_1 = visualize.logistic_regression_plot(df)
-        return plot_1
+        return plot_1, f"Logistic Regression of Patients in the ER waiting for Hospitalization", f"1: Expected Admission, 0: Might not be admitted"
+    #elif option_selected == 'stay_length':
     else:
         pass
-    #elif option_selected == 'stay_length':
+    
         
         
 
