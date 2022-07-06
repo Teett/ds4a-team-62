@@ -1,7 +1,6 @@
 #libraries
 
-import dash
-from dash import Dash, html , dcc, dash_table, Input, Output, callback, State
+from dash import html , dcc, dash_table, Input, Output, callback, State, no_update
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash_labs.plugins import register_page
@@ -13,29 +12,72 @@ import plotly.express as px
 import requests
 import json
 from components.kpi.kpibadge import kpibadge
+from components.data_requests.get_df import get_generate_df
+from components.data_requests.data_transformation import transform_data
+import pickle
+import dash_daq as daq
+from visualization import visualize
 
 
 # dash-labs plugin call, menu name and route
-register_page(__name__, path='/dashboard')
-
-# from components.kpi.kpibadge import kpibadge
-
-# kpi1 = kpibadge('325', 'Total kpi')
-# kpi2 = kpibadge('1500', 'Total sales')
-# kpi3 = kpibadge('325', 'Total transacciones')
-# kpi4 = kpibadge('2122','Total User')
-
-
-#raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
-
-
+register_page(__name__, path='/')
 
 colors = {"graphBackground": "#F5F5F5", "background": "#ffffff", "text": "#000000"}
+
+#Load the model to showw results in Insights:
+
+with open('../../models/admission/model_1_elastic_net_tunned.pickle', 'rb') as f:
+    model = pickle.load(f)
+
+## Load Cards to set up the Emergency Room Thresholds based on historic data:
+
+raw_er_admission = pd.read_excel('../../data/raw/er_admission.xlsx', sheet_name = 'Data')
+bed_occupancy = raw_er_admission['Inpatient_bed_occupancy'].mean()
+arrival_intensity = raw_er_admission['Arrival intensity'].mean()
+las_intensity = raw_er_admission['LAS intensity'].mean()
+lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
+stay_length = raw_er_admission['Stay_length'].mean()
+
+cards = [
+dbc.Card(
+    [
+        html.H2(f"{bed_occupancy*100:.2f}%", className="card-title"),
+        html.P("AVG Bed Occupancy", className="card-text"),
+    ],
+    body=True,
+    color="light",
+),
+dbc.Card(
+    [
+        html.H2(f"{arrival_intensity:.2f}", className="card-title"),
+        html.P("AVG Arrivals within the preceding hour", className="card-text"),
+    ],
+    body=True,
+    color="dark",
+    inverse=True,
+),
+dbc.Card(
+    [
+        html.H2(f"{las_intensity*100:.2f}%", className="card-title"),
+        html.P("AVG Arrivals by Ambulance", className="card-text"),
+    ],
+    body=True,
+    color="primary",
+    inverse=True,
+),
+dbc.Card(
+    [
+        html.H2(f"{lwbs_intensity*100:.2f}%", className="card-title"),
+        html.P("Patients within the hour who leave without being seen by a Doctor", className="card-text",style={'textAlign': 'center'}),
+    ],
+    body=True,
+    color="light",
+),
+]
 
 layout = html.Div(
 
     [  
-
         dcc.Upload(
             id="upload-data",
             children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
@@ -57,29 +99,38 @@ layout = html.Div(
         [
             dbc.Button("Save File in Database", id="submit-button", color = "primary", style={"margin-left": "15px"}, n_clicks = 0),
             #dbc.Button("Read Last File", id="read-button", color = "secondary", style={"margin-left": "20px"}, n_clicks = 0),
-            dbc.Button("Generate Insights", id="graph-button", color = "dark", style={"margin-left": "18px"}, n_clicks = 0),
+            dbc.Button("Generate Today's Insights", id="graph-button", color = "dark", style={"margin-left": "18px"}, n_clicks = 0),
                     ]
                 ),
         html.Br(),
         html.Span(id="output-database", style={"verticalAlign": "middle"}), 
         html.Br(),
         html.Hr(),
-        html.Div(id='output-datatable'),
+        html.H4("ER Thresholds"),
         html.Br(),
-        dbc.Container([
-            html.H4(id= "output-title"),
-            dbc.Row(id = "output-cards"),
-            html.Br(),
+        dbc.Row([dbc.Col(card) for card in cards]),
+        html.Br(),
+        html.Div([
             html.H4(id= "output-title-2"),
-            dbc.Row(id = 'output-badges'),
+            html.Br(),
+            dbc.Row(id ='output-badges'),
+            html.Br(),
+            html.H4(id= 'output-title-3'),
+            html.Br(),
+            dbc.Row([
+                dbc.Col(id='output-div-2', style = {'width': '50%'}),
+                dbc.Col(id='output-div-3', style = {'width': '50%'})
+            ]),
             html.Br(),
             dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
-                dbc.Col(id='output-div-2', style = {'width': '50%'}),
+                dbc.Col(id='output-table', style = {'width':'50%'})
                     ]
-                )
+                ),
             ]
-        )        
+        ),
+        html.Div(id='output-datatable'),
+        html.Br(),        
     ]
 )
 
@@ -100,26 +151,18 @@ def parse_contents(contents, filename, date):
         return html.Div([
             'There was an error processing this file.'
         ])
-
     return html.Div([
-            html.H4('This is a preview of the file you selected'),
-            html.H5(filename),
-            html.H6(datetime.datetime.fromtimestamp(date)),
+            html.H4('This is a preview of the file you are about to upload'),#, style= "color: navy"),
+            html.H5('Note: If want to include this data in the Calculated Insights for Today, please firt save the file in the DataBase'),
+            html.H5(f"File uploaded: {filename}"),
+            html.H6(f"Date:{datetime.datetime.fromtimestamp(date)}"),
             dash_table.DataTable(
                 data=df.to_dict('records'),
                 columns=[{'name': i, 'id': i} for i in df.columns],
-                page_size=15
+                page_size=5
             ),
             dcc.Store(id='stored-data', data=df.to_dict('records')),
-            # print("diccionario",data)
-
-            html.Hr(),  # horizontal line
-            # For debugging, display the raw contents provided by the web browser
-            # html.Div('Raw Content'),
-            # html.Pre(contents[0:200] + '...', style={
-            #     'whiteSpace': 'pre-wrap',
-            #     'wordBreak': 'break-all'
-            # })
+            html.Hr(),
         ])
 
 
@@ -139,120 +182,132 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
           Input('submit-button','n_clicks'),
           State('stored-data','data'))
 def save_in_db(n, data):
-    print(data)
     if n is None:
-        return dash.no_update
+        return no_update
     else:
-        for dato in data:
-            url = 'http://localhost:5000/insertar_admisions'
-            myobj = dato
-            myobj["nombreArchivo"] = "nombre_de_prueba"
-            x = requests.post(url, json = myobj)
-            print(x)
+        url = 'http://localhost:5000/insertar_all_admisions'
+        data = pd.DataFrame(data)
+        data['nombreArchivo'] = 'nombre_de_prueba'
+        data = data.to_dict('records')
+        chunks = [data[x:x+100] for x in range(0, len(data), 100)]
+        for i, chunk in enumerate(chunks):
+            r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
+            assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
+            print(f'total processed chunk {i+1}/{len(chunks)}')
         return f"Data saved in the Database"
-
-    ###### Send chunks of data instead of 1 by 1 #####
-
-    # url = 'http://localhost:5000/insertar_admisions'
-    # data = pd.DataFrame(data)
-    # data['nombreArchivo'] = 'nombre_de_prueba'
-    # data = data.to_dict('records')
-    # chunks = [data[x:x+10] for x in range(0, len(data), 30)]
-    # for i, chunk in enumerate(chunks):
-    #     r = requests.post(url, data = json.dumps(chunk), headers = {'content-type': 'application/json'})
-    #     assert(r.status_code == 200), f'Error, status code is: {r.status_code}'
-    #     print(f'total processed chunk {i+1}/{len(chunks)}')
-
 
 @callback(
         Output('output-div', 'children'),
         Output('output-div-2', 'children'),
+        Output('output-div-3', 'children'),
+        Output('output-table', 'children'),
+        Output('output-title-3', 'children'),
         Input('graph-button','n_clicks'),
-        State('stored-data','data'))
-def make_graphs(n,data):
-    if n is None:
-        return dash.no_update
-    else:
-        bar_fig_1 = px.bar(data, x= 'DayWeek_coded')
-        bar_fig_2 = px.bar(data, x= 'Gender')
-
-        return dcc.Graph(figure=bar_fig_1), dcc.Graph(figure=bar_fig_2)
-  
-@callback(
-        Output('output-title', 'children'),
-        Output('output-cards', 'children'),
-        Input('graph-button','n_clicks'),
-        State('stored-data','data')
         )
-def generate_cards (n,data):
+def make_graphs(n):
     if n is None:
-        return dash.no_update
+        return no_update
     else:
-        raw_er_admission = pd.DataFrame.from_dict(data)
-        ed_bed = raw_er_admission['ED bed occupancy'].mean()
-        arrival_intensity = raw_er_admission['Arrival intensity'].mean()
-        las_intensity = raw_er_admission['LAS intensity'].mean()
-        lwbs_intensity = raw_er_admission['LWBS intensity'].mean()
-        cards = [
-        dbc.Card(
-            [
-                html.H2(f"{ed_bed:.2f}", className="card-title"),
-                html.P("Average ED Bed Occupancy", className="card-text"),
-            ],
-            body=True,
-            color="light",
-        ),
-        dbc.Card(
-            [
-                html.H2(f"{arrival_intensity:.2f}", className="card-title"),
-                html.P("AVG Arrival within preceding hour", className="card-text"),
-            ],
-            body=True,
-            color="dark",
-            inverse=True,
-        ),
-        dbc.Card(
-            [
-                html.H2(f"{las_intensity:.2f}", className="card-title"),
-                html.P("Ambulance Arrival Intensity", className="card-text"),
-            ],
-            body=True,
-            color="primary",
-            inverse=True,
-        ),
-        dbc.Card(
-            [
-                html.H2(f"{lwbs_intensity:.2f}", className="card-title"),
-                html.P("LWBS intensity", className="card-text"),
-            ],
-            body=True,
-            color="light",
-        ),
-        ]
-        return f"ER Thresholds", [dbc.Col(card) for card in cards]
-        
+        daily_admissions = get_generate_df()
+        adm_dummies = transform_data(daily_admissions)
+        y_prob =model.predict_proba(adm_dummies) 
+        y_pred = (y_prob[:,1] >= 0.25).astype(int)
+        y_prob_list = []
+        for i in y_prob:
+            y_prob_list.append(i[0])
+        gauge_value = sum(y_prob_list)/len(y_prob_list)
+        df_fig = daily_admissions.copy()
+        fig_1 = visualize.admissions_plot(y_pred,df_fig)
+        #y_pred_dict['Admitted'] / (y_pred_dict['Admitted'] + y_pred_dict['Not Admitted'])
+        fig_2 = daq.Gauge(
+            color={"gradient":True,"ranges":{"green":[0.65,1],"yellow":[0.35,0.65],"red":[0,0.35]}},
+            value= gauge_value,
+            label='Average Probability of Hospitalization',
+            max=1,
+            min=0,
+            size = 300
+        )
+        fig_3 = daq.Gauge(
+            color={"gradient":True,"ranges":{"green":[0,75],"yellow":[75,120],"red":[120,200]}},
+            #value=y_prob.mean().item(),
+            value = 80, #testing value until we have regression model
+            label='Average time in Emergency Dept.',
+            max=200,
+            min=0,
+            size = 300
+        )
+        df = daily_admissions.copy()
+        #df['Expected_ER_stay'] =  waiting for regression model
+        df['Status'] = y_pred
+        df['Hosp_prob'] = y_prob_list
+        df['Hosp_prob'] = df.loc[:,'Hosp_prob'].apply(lambda x: round(x,4))
+        df_table = df[['Site','Age_band','Gender','Status','Hosp_prob']]
+        dict_admissions = {0: 'Expected Admission', 1: 'Might Not be Admitted'}
+        dict_gen = {0: 'male', 1: 'female'}
+        dict_age = {0: '16-34',
+                1: '35-64',
+                2: '65-84',
+                3: '85 and over'}
+        df_table.replace({'Gender': dict_gen,
+                    'Status': dict_admissions,
+                    'Age_band': dict_age}, inplace = True)
+        table = dash_table.DataTable(
+                data=df_table.to_dict('records'),
+                columns=[{'name': i, 'id': i} for i in df_table.columns],
+                page_size=12
+            ),
+        return dcc.Graph(figure=fig_1), fig_2, fig_3, table, f"Expected Predictions"
 
 @callback(
         Output('output-title-2', 'children'), 
         Output('output-badges', 'children'),
-        Input('graph-button','n_clicks'),
-        State('stored-data','data'))
-def generate_bagdes(n,data):
+        Input('graph-button','n_clicks')
+        )
+def generate_bagdes(n):
     if n is None:
-        return dash.no_update
+        return no_update
     else:
-        raw_er_admission = pd.DataFrame.from_dict(data)
-        ed_bed = round(raw_er_admission['ED bed occupancy'].median(),2)
-        arrival_intensity = round(raw_er_admission['Arrival intensity'].median(),2)
-        las_intensity = round(raw_er_admission['LAS intensity'].median(),2)
-        lwbs_intensity = round(raw_er_admission['LWBS intensity'].median(),2)
+        er_admission = get_generate_df()
+        ed_bed = round(er_admission['Inpatient_bed_occupancy'].mean(),2)
+        arrival_intensity = round(er_admission['Arrival intensity'].mean(),2)
+        las_intensity = round(er_admission['LAS intensity'].mean(),2)
+        lwbs_intensity = round(er_admission['LWBS intensity'].mean(),2)
 
-        #Agregar los ifs de los Thresholds#
+        # Using ER Thresholds for Bagdes Kpis later on: ##
 
-        kpi1 = kpibadge(ed_bed, 'Average ED Bed Occupancy', 'Danger')
-        kpi2 = kpibadge(arrival_intensity, 'AVG Arrival within preceding hour', 'Warning')
-        kpi3 = kpibadge(las_intensity, 'Ambulance Arrival Intensity', 'Approved')
-        kpi4 = kpibadge(lwbs_intensity,'LWBS intensity', 'Danger')
+        # Badge 1:
+        if  ed_bed >= 0.90:
+            badge_1 = 'Danger'
+        elif ed_bed >= 0.80 and ed_bed < 0.90:
+            badge_1 = 'Warning'
+        else:
+            bagde_1 = 'Normal'
+        # Badge 2:
+        if arrival_intensity >= 20:
+            badge_2 = 'Danger' 
+        elif arrival_intensity >= 15 and arrival_intensity <20:
+            badge_2 = 'Warning'
+        else:
+            badge_2 = 'Normal' 
+        # Badge 3:
+        if las_intensity >= 0.50:
+            badge_3 = 'Danger'
+        if las_intensity >= 0.30 and las_intensity < 0.50:
+            badge_3 = 'Warning'
+        else:
+            badge_3 = 'Normal'
+        # Badge 4:
+        if lwbs_intensity >= 0.15:
+            badge_4 = 'Danger'
+        elif lwbs_intensity >= 0.7 and lwbs_intensity < 0.15:
+            badge_4 = 'Warning'
+        else:
+            badge_4 = 'Normal'
+        
+        kpi1 = kpibadge(f"{ed_bed*100:.2f}%", 'Average ED Bed Occupancy', badge_1)
+        kpi2 = kpibadge(f"{arrival_intensity:.2f}", 'AVG Arrival within preceding hour', badge_2)
+        kpi3 = kpibadge(f"{las_intensity*100:.2f}%", 'Ambulance Arrival Intensity', badge_3)
+        kpi4 = kpibadge(f"{lwbs_intensity*100:.2f}%",'LWBS intensity', badge_4)
         badges = [  
                 kpi1.display(),
                 kpi2.display(),

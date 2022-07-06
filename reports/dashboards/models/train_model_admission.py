@@ -1,3 +1,4 @@
+# %%
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,13 +7,13 @@ from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics import confusion_matrix, recall_score, f1_score, classification_report, make_scorer, precision_recall_curve, auc
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.model_selection import RandomizedSearchCV
-X_train = pd.read_pickle('../../data/processed/admission/X_train_adm.pickle')
-X_test = pd.read_pickle('../../data/processed/admission/X_test_adm.pickle')
-y_train = pd.read_pickle('../../data/processed/admission/y_train_adm.pickle')
-y_test = pd.read_pickle('../../data/processed/admission/y_test_adm.pickle')
+X_train = pd.read_pickle('../../../data/processed/admission/X_train_adm.pickle')
+X_test = pd.read_pickle('../../../data/processed/admission/X_test_adm.pickle')
+y_train = pd.read_pickle('../../../data/processed/admission/y_train_adm.pickle')
+y_test = pd.read_pickle('../../../data/processed/admission/y_test_adm.pickle')
 
 
-# ## Build preliminary SVM
+# Prediction labels
 pred_labels = ["Not Hospitalized" , "Hospitalized"]
 
 # Elastic net
@@ -67,6 +68,7 @@ f1_score(y_test, y_pred)
 print(classification_report(y_test, elastic_net_y_pred, target_names = pred_labels))
 recall_score(y_test, elastic_net_y_pred)
 f1_score(y_test, elastic_net_y_pred)
+
 # Model properties
 elastic_net_coefs = pd.concat([pd.DataFrame(X_train.columns),pd.DataFrame(np.transpose(elastic_net_class.coef_))], axis = 1)
 elastic_net_coefs
@@ -78,5 +80,6 @@ elastic_net_class.l1_ratio_[0]
 elastic_net_class.C_
 elastic_net_class.scores_
 
+# %%
 with open("../../models/admission/model_1_elastic_net_tunned.pickle", "wb") as fp:   #Pickling
     pickle.dump(elastic_net_class, fp)

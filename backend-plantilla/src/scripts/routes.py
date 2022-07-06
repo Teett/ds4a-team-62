@@ -21,5 +21,6 @@ primavera.add_url_rule('/consulta_admision_por_nombre', view_func=controllers.co
 
 primavera.add_url_rule('/insertar_admisions', view_func=controllers.insertar_admisions,methods=['POST'])
 
+primavera.add_url_rule('/insertar_all_admisions', view_func=controllers.insertar_all_admisions,methods=['POST'])
 
 
