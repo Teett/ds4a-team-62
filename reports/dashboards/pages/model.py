@@ -27,17 +27,23 @@ adm_dummies = transform_data(daily_admissions)
 try:
     y_prob = get_hosp_probabilities(adm_dummies)
     y_pred = get_hosp_pred(adm_dummies)
-    regression_df = pd.concat([pd.DataFrame(y_prob),pd.DataFrame(y_pred)], axis = 1)
-    regression_df["rowname"] = regression_df.index
+    df = daily_admissions.copy()
+    df['y_pred'] = y_pred
+    df['y_prob'] = y_prob
+    df['y_prob'] = df.loc[:,'y_prob'].apply(lambda x: round(x,4))
+    df["rowname"] = df.index
 
 except:
     d = {'y_prob': 0}
     y_prob = pd.Series(data=d)
     y_pred = pd.Series(data=d)
-    regression_df = pd.concat([pd.DataFrame(y_prob),pd.DataFrame(y_pred)], axis = 1)
-    regression_df["rowname"] = regression_df.index
+    df = daily_admissions.copy()
+    df['y_pred'] = y_pred
+    df['y_prob'] = y_prob
+    df['y_prob'] = df.loc[:,'y_prob'].apply(lambda x: round(x,4))
+    df["rowname"] = df.index
 
-print(regression_df)
+print(df)
 
 layout = html.Div(
     [
