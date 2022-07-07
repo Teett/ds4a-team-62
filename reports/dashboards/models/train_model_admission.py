@@ -16,6 +16,7 @@ y_test = pd.read_pickle('../../../data/processed/admission/y_test_adm.pickle')
 # Prediction labels
 pred_labels = ["Not Hospitalized" , "Hospitalized"]
 
+#%% train the model
 # Elastic net
 
 ## Build Initial Logistic Regression with CV
@@ -25,6 +26,10 @@ elastic_net_class = LogisticRegressionCV(cv = 10, solver = 'saga', penalty = 'el
 
 elastic_net_class.fit(X_train, y_train)
 
+# %% read the saved model
+with open('../../../models/admission/model_1_elastic_net_tunned.pickle', 'rb') as f:
+    elastic_net_class = pickle.load(f)
+# %%
 elastic_net_y_pred = elastic_net_class.predict(X_test)
 elastic_net_y_prob =elastic_net_class.predict_proba(X_test) 
 
@@ -62,6 +67,7 @@ plt.show()
 
 print(classification_report(y_test, y_pred, target_names = pred_labels))
 recall_score(y_test, y_pred)
+
 f1_score(y_test, y_pred)
 
 #### Test classification report
