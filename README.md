@@ -23,6 +23,8 @@ Project Organization
     │                         the creator's initials, and a short `-` delimited description, e.g.
     │                         `1.0-jqp-initial-data-exploration`.
     │
+    ├── project            <- Report, Datafolio and Presentation Video submitted to DS4A Colombia to qualify for certification.
+    │ 
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
