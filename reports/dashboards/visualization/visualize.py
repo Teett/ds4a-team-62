@@ -176,7 +176,7 @@ def logistic_regression_plot(regression_df, title_name, color = 'y_pred', opacit
     #plot_df = regression_df.sort_values(by = ['y_prob'])
     regression_df.y_pred = regression_df.y_pred.astype(str)
     plot = px.scatter(regression_df, x='row_number', y='y_prob', color=color, 
-                      opacity = opacity, height = 650, width = 800, title = title_name)
+                      opacity = opacity, height = 650, width = 850, title = title_name)
     plot.update_layout(shapes=[
     # adds line at y=5
     dict(
