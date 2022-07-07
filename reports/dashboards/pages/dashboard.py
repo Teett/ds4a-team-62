@@ -120,9 +120,13 @@ layout = html.Div(
             html.H4(id= 'output-title-3'),
             html.Br(),
             dbc.Row([
+                dbc.Col(id='output-div-2', style = {'width': '50%'}),
+                dbc.Col(id='output-div-3', style = {'width': '50%'})
+            ]),
+            html.Br(),
+            dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
-                dbc.Col(id='output-div-2', style = {'width': '25%'}),
-                dbc.Col(id='output-div-3', style = {'width': '25%'})
+                dbc.Col(id='output-div-4', style = {'width': '50%'})
             ]),
             html.Br(),
             dbc.Row([
@@ -202,6 +206,7 @@ def save_in_db(n, data):
         Output('output-div', 'children'),
         Output('output-div-2', 'children'),
         Output('output-div-3', 'children'),
+        Output('output-div-4', 'children'),
         Output('output-table', 'children'),
         Output('output-title-3', 'children'),
         Input('graph-button','n_clicks'),
@@ -274,8 +279,8 @@ def make_graphs(n):
             ),
         
         ## Histogram ##
-
-        return dcc.Graph(figure=fig_1), fig_2, fig_3, table, f"Expected Predictions"
+        fig_4 = visualize.predictions_hist(df_table)
+        return dcc.Graph(figure=fig_1), fig_2, fig_3, fig_4, table, f"Expected Predictions"
 
 @callback(
         Output('output-title-2', 'children'), 

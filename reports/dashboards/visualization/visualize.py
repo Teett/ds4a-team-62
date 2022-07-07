@@ -208,5 +208,5 @@ def residuals_plot(df, title_name):
     return fig
 
 def predictions_hist(df):
-    fig = px.histogram(df, x="total_bill")
+    fig = px.histogram(df, x="Stay_length", color = 'Status', title = 'Stay Length Distribution by Admission')
     return fig
