@@ -143,7 +143,7 @@ def generate_cards(option_selected):
         cards_1 = [
             dbc.Card(
                 [
-                    html.H2(f"73.66%", className="card-title"),
+                    html.H2(f"73.50%", className="card-title"),
                     html.P("Model Testing Sensitivity", className="card-text"),
                 ],
                 body=True,
@@ -152,7 +152,7 @@ def generate_cards(option_selected):
             dbc.Card(
                 [
                     #html.H2(f"{test_acc*100:.2f}%", className="card-title"),
-                    html.H2(f"65.39%", className="card-title"),
+                    html.H2(f"65.31%", className="card-title"),
                     html.P("Model Testing Specificity", className="card-text"),
                 ],
                 body=True,
@@ -162,7 +162,7 @@ def generate_cards(option_selected):
             dbc.Card(
                 [
                     #html.H2(f"{dfTrain.shape[0]} / {dfTest.shape[0]}", className="card-title"),
-                    html.H2(f" 13.529 / 6.208", className="card-title"),
+                    html.H2(f" 15.770 (80%) / 3.943 (20%)", className="card-title"),
                     html.P("Train / Test Split", className="card-text"),
                 ],
                 body=True,
