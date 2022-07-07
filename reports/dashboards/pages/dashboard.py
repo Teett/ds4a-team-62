@@ -119,12 +119,12 @@ layout = html.Div(
             html.H4(id= 'output-title-3'),
             html.Br(),
             dbc.Row([
-                dbc.Col(id='output-div-2', style = {'width': '50%'}),
-                dbc.Col(id='output-div-3', style = {'width': '50%'})
+                dbc.Col(id='output-div',   style = {'width': '40%'}),
+                dbc.Col(id='output-div-2', style = {'width': '30%'}),
+                dbc.Col(id='output-div-3', style = {'width': '30%'})
             ]),
             html.Br(),
             dbc.Row([
-                dbc.Col(id='output-div',   style = {'width': '50%'}),
                 dbc.Col(id='output-table', style = {'width':'50%'})
                     ]
                 ),
@@ -228,12 +228,13 @@ def make_graphs(n):
             size = 300
         )
 
-        ## Predictions of Time spent in the ER:
+        ## Predictions of the regression for time spent in the ER:
 
         df_regression = get_generate_df()
         df_regression["Admission_ALL"] = y_pred
         reg_dummies = reg_transform_data(df_regression)
         y_pred_reg = get_reg_prediction(reg_dummies)
+        df_regression['Stay_length'] = y_pred_reg
 
         fig_3 = daq.Gauge(
             color={"gradient":True,"ranges":{"green":[0,75],"yellow":[75,120],"red":[120,200]}},
@@ -243,12 +244,19 @@ def make_graphs(n):
             min=0,
             size = 300
         )
+        
+        ## Creating the final DF with all predictions results: 
+
         df = daily_admissions.copy()
         #df['Expected_ER_stay'] =  waiting for regression model
         df['Status'] = y_pred
         df['Hosp_prob'] = y_prob_list
         df['Hosp_prob'] = df.loc[:,'Hosp_prob'].apply(lambda x: round(x,4))
-        df_table = df[['Site','Age_band','Gender','Status','Hosp_prob']]
+        df['Stay_length'] = y_pred_reg
+        
+        ## Now Creating df for the table that will be displayed:
+
+        df_table = df[['Site','Age_band','Gender','Status','Hosp_prob','Stay_length']]
         dict_admissions = {1: 'Expected Admission', 0: 'Might Not be Admitted'}
         dict_gen = {0: 'male', 1: 'female'}
         dict_age = {0: '16-34',
