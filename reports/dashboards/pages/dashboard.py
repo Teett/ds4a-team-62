@@ -12,7 +12,7 @@ import plotly.express as px
 import requests
 import json
 from components.kpi.kpibadge import kpibadge
-from components.generate_names import generate_name
+from components.generate_random_data import generate_name, generate_address
 from components.data_requests.get_df import get_generate_df
 from components.data_requests.data_transformation import transform_data, reg_transform_data
 import pickle
@@ -261,9 +261,10 @@ def make_graphs(n):
         df['Stay_length'] = y_pred_reg
         df['Stay_length'] = df.loc[:,'Stay_length'].apply(lambda x: round(x,2))
         df["Name"] = df.apply(lambda x: generate_name(), axis=1)
+        df['Address'] = df.apply(lambda x: generate_address(), axis=1)
         ## Now Creating df for the table that will be displayed:
 
-        df_table = df[['Name','Site','Age_band','Gender','Status','Hosp_prob','Stay_length']].sort_values(by = ['Hosp_prob'], ascending = False)
+        df_table = df[['Name','Address','Site','Age_band','Gender','Status','Hosp_prob','Stay_length']].sort_values(by = ['Hosp_prob'], ascending = False)
         dict_admissions = {1: 'Expected Admission', 0: 'Might Not be Admitted'}
         dict_gen = {0: 'male', 1: 'female'}
         dict_age = {0: '16-34',
