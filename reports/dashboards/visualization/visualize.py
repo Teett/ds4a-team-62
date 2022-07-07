@@ -176,7 +176,7 @@ def logistic_regression_plot(regression_df, color = 'y_pred', opacity = 0.8):
     #plot_df = regression_df.sort_values(by = ['y_prob'])
     regression_df.y_pred = regression_df.y_pred.astype(str)
     plot = px.scatter(regression_df, x='row_number', y='y_prob', color=color, 
-                      opacity = opacity, height = 600, width = 600)
+                      opacity = opacity, height = 650, width = 800)
     plot.update_layout(shapes=[
     # adds line at y=5
     dict(
@@ -195,5 +195,13 @@ def prediction_errors_plot(y,y_pred):
         type="line", line=dict(dash='dash'),
         x0=y.min(), y0=y.min(),
         x1=y.max(), y1=y.max()
+    )
+    return fig
+
+def residuals_plot(df):
+    fig = px.scatter(
+    df, x='prediction', y='residual',
+    marginal_y='violin',
+    trendline='ols'
     )
     return fig

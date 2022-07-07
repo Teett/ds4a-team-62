@@ -9,6 +9,7 @@ from components.data_requests.get_df import get_generate_df
 from models.predict_model import get_hosp_probabilities, get_hosp_pred, get_reg_prediction
 from visualization import visualize
 import numpy as np
+import statsmodels.api as sm
 
 # dash-labs plugin call, menu name and route
 register_page(__name__, path='/the-model')
@@ -90,6 +91,14 @@ except:
 print("-----------------regression_data_frame-------")
 print(df_reg)
 
+################################################################################################
+# Run the tunned model on the test data to produce the linear regression plot on the test set
+################################################################################################
+
+X_test_reg = pd.read_pickle('../../data/processed/stay/X_test_stay.pickle')
+y_test_reg = pd.read_pickle('../../data/processed/stay/y_test_stay.pickle')
+
+y_pred_test_reg = get_reg_prediction(X_test_reg)
 
 layout = html.Div(
     [
@@ -162,7 +171,7 @@ def generate_cards(option_selected):
             dbc.Card(
                 [
                     #html.H2(f"{dfTrain.shape[0]} / {dfTest.shape[0]}", className="card-title"),
-                    html.H2(f" 15.770 (80%) / 3.943 (20%)", className="card-title"),
+                    html.H2(f"15.770 (80%) / 3.943 (20%)", className="card-title"),
                     html.P("Train / Test Split", className="card-text"),
                 ],
                 body=True,
@@ -175,7 +184,7 @@ def generate_cards(option_selected):
         cards_2 = [
             dbc.Card(
                 [
-                    html.H2(f"XX.XX%", className="card-title"),
+                    html.H2(f"82.3584", className="card-title"),
                     html.P("Model RMSE", className="card-text"),
                 ],
                 body=True,
@@ -184,8 +193,8 @@ def generate_cards(option_selected):
             dbc.Card(
                 [
                     #html.H2(f"{test_acc*100:.2f}%", className="card-title"),
-                    html.H2(f"XX.XX%", className="card-title"),
-                    html.P("Model XXXX", className="card-text"),
+                    html.H2(f"53.12", className="card-title"),
+                    html.P("Model MAE", className="card-text"),
                 ],
                 body=True,
                 color="dark",
@@ -194,7 +203,7 @@ def generate_cards(option_selected):
             dbc.Card(
                 [
                     #html.H2(f"{dfTrain.shape[0]} / {dfTest.shape[0]}", className="card-title"),
-                    html.H2(f" 13.529 / 6.208", className="card-title"),
+                    html.H2(f"15.770 (80%) / 3.943 (20%)", className="card-title"),
                     html.P("Train / Test Split", className="card-text"),
                 ],
                 body=True,
@@ -251,7 +260,9 @@ def generate_log_reg(option_selected):
         plot_2 = visualize.logistic_regression_plot(df_test,
                                                     opacity = 0.4)
         return plot_1, plot_2, f"Logistic Regression of Patients in the ER waiting for Hospitalization", f"1: Expected Admission, 0: Might not be admitted"
-    #elif option_selected == 'stay_length':
+    elif option_selected == 'stay_length':
+        plot_3 = visualize.prediction_errors_plot(y_test_reg[(y_test_reg>100)&(y_test_reg<200)][:500],y_pred_test_reg[(y_pred_test_reg>100)&(y_pred_test_reg<200)][:500])
+        return plot_3, plot_3, f"test", f"test"
     else:
         pass
     
