@@ -12,6 +12,7 @@ import plotly.express as px
 import requests
 import json
 from components.kpi.kpibadge import kpibadge
+from components.generate_names import generate_name
 from components.data_requests.get_df import get_generate_df
 from components.data_requests.data_transformation import transform_data, reg_transform_data
 import pickle
@@ -119,9 +120,9 @@ layout = html.Div(
             html.H4(id= 'output-title-3'),
             html.Br(),
             dbc.Row([
-                dbc.Col(id='output-div',   style = {'width': '40%'}),
-                dbc.Col(id='output-div-2', style = {'width': '30%'}),
-                dbc.Col(id='output-div-3', style = {'width': '30%'})
+                dbc.Col(id='output-div',   style = {'width': '50%'}),
+                dbc.Col(id='output-div-2', style = {'width': '25%'}),
+                dbc.Col(id='output-div-3', style = {'width': '25%'})
             ]),
             html.Br(),
             dbc.Row([
@@ -253,10 +254,10 @@ def make_graphs(n):
         df['Hosp_prob'] = y_prob_list
         df['Hosp_prob'] = df.loc[:,'Hosp_prob'].apply(lambda x: round(x,4))
         df['Stay_length'] = y_pred_reg
-        
+        df["Name"] = df.apply(lambda x: generate_name(), axis=1)
         ## Now Creating df for the table that will be displayed:
 
-        df_table = df[['Site','Age_band','Gender','Status','Hosp_prob','Stay_length']]
+        df_table = df[['Name','Site','Age_band','Gender','Status','Hosp_prob','Stay_length']]
         dict_admissions = {1: 'Expected Admission', 0: 'Might Not be Admitted'}
         dict_gen = {0: 'male', 1: 'female'}
         dict_age = {0: '16-34',
@@ -271,6 +272,9 @@ def make_graphs(n):
                 columns=[{'name': i, 'id': i} for i in df_table.columns],
                 page_size=12
             ),
+        
+        ## Histogram ##
+
         return dcc.Graph(figure=fig_1), fig_2, fig_3, table, f"Expected Predictions"
 
 @callback(
