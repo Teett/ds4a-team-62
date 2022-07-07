@@ -1,5 +1,4 @@
 # %% libraries
-from pyexpat import model
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import ElasticNetCV
@@ -89,5 +88,7 @@ rmse_elastic = mean_squared_error(
                )
 print(f"El error (rmse) de test es: {rmse_elastic}")
 # %%
-with open("../../models/admission/reg_elastic_net.pickle", "wb") as fp:   #Pickling
-    pickle.dump(model, fp)
+with open("../../models/stay/reg_elastic_net.pickle", "wb") as fp:   #Pickling
+    pickle.dump(modelo, fp)
+
+# %%

@@ -4,9 +4,9 @@ from dash import html , dcc, Output, Input, callback, no_update
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash_labs.plugins import register_page
-from components.data_requests.data_transformation import transform_data
+from components.data_requests.data_transformation import transform_data, reg_transform_data
 from components.data_requests.get_df import get_generate_df
-from models.predict_model import get_hosp_probabilities, get_hosp_pred
+from models.predict_model import get_hosp_probabilities, get_hosp_pred, get_reg_prediction
 from visualization import visualize
 
 # dash-labs plugin call, menu name and route
@@ -49,32 +49,27 @@ print(df)
 # Load the model and retrieve the DataFrame with today's pacients to pass to the model
 ################################################################################################
 df_regression = get_generate_df()
+df_regression["Admission_ALL"] = y_pred
 ################################################################################################
 # Transform the data
 ################################################################################################
-reg_dummies = transform_data(df_regression)
+reg_dummies = reg_transform_data(df_regression)
 ################################################################################################
 # Run the tunned model with the selected data
 ################################################################################################
 
 try:
-    y_pred = get_hosp_pred(reg_dummies)
-    df = daily_admissions.copy()
-    df['y_pred'] = y_pred
-    df['y_prob'] = y_prob
-    df['y_prob'] = df.loc[:,'y_prob'].apply(lambda x: round(x,4))
-    df["rowname"] = df.index
+    y_pred_reg = get_reg_prediction(reg_dummies)
+    df_reg = daily_admissions.copy()
+    df_reg['y_pred_reg'] = y_pred_reg
 
 except:
     d = {'y_prob': 0}
-    y_pred = pd.Series(data=d)
-    df = daily_admissions.copy()
-    df['y_pred'] = y_pred
-    df['y_prob'] = y_prob
-    df['y_prob'] = df.loc[:,'y_prob'].apply(lambda x: round(x,4))
-    df["rowname"] = df.index
-
-print(df)
+    y_pred_reg = pd.Series(data=d)
+    df_reg = daily_admissions.copy()
+    df_reg['y_pred'] = y_pred_reg
+print("-----------------regression_data_frame-------")
+print(df_reg)
 
 
 layout = html.Div(
