@@ -99,6 +99,10 @@ X_test_reg = pd.read_pickle('../../data/processed/stay/X_test_stay.pickle')
 y_test_reg = pd.read_pickle('../../data/processed/stay/y_test_stay.pickle')
 
 y_pred_test_reg = get_reg_prediction(X_test_reg)
+df_test_reg = X_test_reg.copy()
+df_test_reg['Stay_length'] = y_test_reg
+df_test_reg['prediction'] = y_pred_test_reg
+df_test_reg['residual'] = df_test_reg['prediction'] - df_test_reg['Stay_length']
 
 layout = html.Div(
     [
@@ -252,19 +256,21 @@ def update_images(option_selected):
     Output('output-notes', 'children'),
     Input('ML-models','value')
 )
-def generate_log_reg(option_selected):
+def generate_graphs(option_selected):
     if option_selected is None:
         return no_update
     elif option_selected == 'admission':
-        plot_1 = visualize.logistic_regression_plot(df)
+        plot_1 = visualize.logistic_regression_plot(df, title_name= 'Prediction of Actual Patients in the ER')
         plot_2 = visualize.logistic_regression_plot(df_test,
+                                                    title_name= 'Prediction of Patients in the Test Dataset',
                                                     opacity = 0.4)
         return plot_1, plot_2, f"Logistic Regression of Patients in the ER waiting for Hospitalization", f"1: Expected Admission, 0: Might not be admitted"
     elif option_selected == 'stay_length':
-        plot_3 = visualize.prediction_errors_plot(y_test_reg[(y_test_reg>100)&(y_test_reg<200)][:500],y_pred_test_reg[(y_pred_test_reg>100)&(y_pred_test_reg<200)][:500])
-        return plot_3, plot_3, f"test", f"test"
+        plot_3 = visualize.residuals_plot(df_test_reg, 'Residuals Plot')
+        plot_4 = visualize.prediction_errors_plot(y_test_reg[(y_test_reg>100)&(y_test_reg<200)][:500],y_pred_test_reg[(y_pred_test_reg>100)&(y_pred_test_reg<200)][:500],'Prediction Error')
+        return plot_3, plot_4, f"Linear Regression Insights", f""
     else:
-        pass
+        return no_update
     
         
         

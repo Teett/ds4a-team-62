@@ -169,14 +169,14 @@ def admissions_plot(pred_result,df):
                 text_auto=True)
     return plot
 
-def logistic_regression_plot(regression_df, color = 'y_pred', opacity = 0.8):
+def logistic_regression_plot(regression_df, title_name, color = 'y_pred', opacity = 0.8):
     '''
     Plots a logistic regression plot of the provided df.
     '''
     #plot_df = regression_df.sort_values(by = ['y_prob'])
     regression_df.y_pred = regression_df.y_pred.astype(str)
     plot = px.scatter(regression_df, x='row_number', y='y_prob', color=color, 
-                      opacity = opacity, height = 650, width = 800)
+                      opacity = opacity, height = 650, width = 800, title = title_name)
     plot.update_layout(shapes=[
     # adds line at y=5
     dict(
@@ -189,8 +189,8 @@ def logistic_regression_plot(regression_df, color = 'y_pred', opacity = 0.8):
     plot.update_traces(marker={'size': 15})
     return plot
 
-def prediction_errors_plot(y,y_pred):
-    fig = px.scatter(x=y, y=y_pred, labels={'x': 'ground truth', 'y': 'prediction'})
+def prediction_errors_plot(y,y_pred,title_name):
+    fig = px.scatter(x=y, y=y_pred, labels={'x': 'ground truth', 'y': 'prediction'}, title = title_name)
     fig.add_shape(
         type="line", line=dict(dash='dash'),
         x0=y.min(), y0=y.min(),
@@ -198,10 +198,11 @@ def prediction_errors_plot(y,y_pred):
     )
     return fig
 
-def residuals_plot(df):
+def residuals_plot(df, title_name):
     fig = px.scatter(
     df, x='prediction', y='residual',
     marginal_y='violin',
-    trendline='ols'
+    trendline='ols',
+    title = title_name
     )
     return fig
