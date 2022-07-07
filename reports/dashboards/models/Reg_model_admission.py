@@ -5,6 +5,8 @@ from sklearn.linear_model import ElasticNetCV
 from sklearn.metrics import mean_squared_error
 import numpy as np
 import seaborn as sns
+import pickle
+
 # %% read data 
 X_train = pd.read_pickle('../../data/processed/stay/X_train_stay.pickle')
 X_test = pd.read_pickle('../../data/processed/stay/X_test_stay.pickle')
@@ -85,4 +87,8 @@ rmse_elastic = mean_squared_error(
                 squared = False
                )
 print(f"El error (rmse) de test es: {rmse_elastic}")
+# %%
+with open("../../models/stay/reg_elastic_net.pickle", "wb") as fp:   #Pickling
+    pickle.dump(modelo, fp)
+
 # %%

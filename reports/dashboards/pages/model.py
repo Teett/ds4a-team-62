@@ -4,9 +4,9 @@ from dash import html , dcc, Output, Input, callback, no_update
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash_labs.plugins import register_page
-from components.data_requests.data_transformation import transform_data
+from components.data_requests.data_transformation import transform_data, reg_transform_data
 from components.data_requests.get_df import get_generate_df
-from models.predict_model import get_hosp_probabilities, get_hosp_pred
+from models.predict_model import get_hosp_probabilities, get_hosp_pred, get_reg_prediction
 from visualization import visualize
 import numpy as np
 
@@ -63,6 +63,33 @@ df_test["row_number"] = np.arange(len(df_test))
 df_test['y_pred'] = y_test
 df_test = df_test.groupby('y_pred', group_keys=False).apply(lambda x: x.sample(250))
 print(df_test)
+
+################################################################################################
+# Load the model and retrieve the DataFrame with today's pacients to pass to the model
+################################################################################################
+df_regression = get_generate_df()
+df_regression["Admission_ALL"] = y_pred
+################################################################################################
+# Transform the data
+################################################################################################
+reg_dummies = reg_transform_data(df_regression)
+################################################################################################
+# Run the tunned model with the selected data
+################################################################################################
+
+try:
+    y_pred_reg = get_reg_prediction(reg_dummies)
+    df_reg = daily_admissions.copy()
+    df_reg['y_pred_reg'] = y_pred_reg
+
+except:
+    d = {'y_prob': 0}
+    y_pred_reg = pd.Series(data=d)
+    df_reg = daily_admissions.copy()
+    df_reg['y_pred'] = y_pred_reg
+print("-----------------regression_data_frame-------")
+print(df_reg)
+
 
 layout = html.Div(
     [
