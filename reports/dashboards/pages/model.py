@@ -45,6 +45,38 @@ except:
 
 print(df)
 
+################################################################################################
+# Load the model and retrieve the DataFrame with today's pacients to pass to the model
+################################################################################################
+df_regression = get_generate_df()
+################################################################################################
+# Transform the data
+################################################################################################
+reg_dummies = transform_data(df_regression)
+################################################################################################
+# Run the tunned model with the selected data
+################################################################################################
+
+try:
+    y_pred = get_hosp_pred(reg_dummies)
+    df = daily_admissions.copy()
+    df['y_pred'] = y_pred
+    df['y_prob'] = y_prob
+    df['y_prob'] = df.loc[:,'y_prob'].apply(lambda x: round(x,4))
+    df["rowname"] = df.index
+
+except:
+    d = {'y_prob': 0}
+    y_pred = pd.Series(data=d)
+    df = daily_admissions.copy()
+    df['y_pred'] = y_pred
+    df['y_prob'] = y_prob
+    df['y_prob'] = df.loc[:,'y_prob'].apply(lambda x: round(x,4))
+    df["rowname"] = df.index
+
+print(df)
+
+
 layout = html.Div(
     [
         html.H4("Choose the model to analyze:"),

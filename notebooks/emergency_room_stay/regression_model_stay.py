@@ -67,10 +67,5 @@ models[0].groupby('model')['test_neg_mean_absolute_error', 'test_neg_mean_absolu
 with open("../../models/stay/many_models_stay_1.pickle", "wb") as fp:   #Pickling
     pickle.dump(models, fp)
 
-
 # %%
-
-
-
 sns.histplot(data = pd.DataFrame(y_train), x= "Stay_length")
-# %%
