@@ -82,8 +82,8 @@ layout = html.Div(
         html.H4(id = 'output-title-graph'),
         html.H5(id = 'output-notes'),
         dbc.Row([
-            dbc.Col(dcc.Graph(id ='output-graph'),style = {'width' : '50%'}),
-            dbc.Col(dcc.Graph(id ='output-graph2'),style = {'width' : '50%'}),
+            dbc.Col(dcc.Graph(id ='output-graph'),style = {'width' : '50%', 'height': '80%'}),
+            dbc.Col(dcc.Graph(id ='output-graph2'),style = {'width' : '50%', 'height': '80%'}),
             ]
         ),
         html.Br(),
