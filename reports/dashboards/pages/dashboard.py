@@ -120,9 +120,13 @@ layout = html.Div(
             html.H4(id= 'output-title-3'),
             html.Br(),
             dbc.Row([
+                dbc.Col(id='output-div-2', style = {'width': '50%'}),
+                dbc.Col(id='output-div-3', style = {'width': '50%'})
+            ]),
+            html.Br(),
+            dbc.Row([
                 dbc.Col(id='output-div',   style = {'width': '50%'}),
-                dbc.Col(id='output-div-2', style = {'width': '25%'}),
-                dbc.Col(id='output-div-3', style = {'width': '25%'})
+                dbc.Col(id='output-div-4', style = {'width': '50%'})
             ]),
             html.Br(),
             dbc.Row([
@@ -202,6 +206,7 @@ def save_in_db(n, data):
         Output('output-div', 'children'),
         Output('output-div-2', 'children'),
         Output('output-div-3', 'children'),
+        Output('output-div-4', 'children'),
         Output('output-table', 'children'),
         Output('output-title-3', 'children'),
         Input('graph-button','n_clicks'),
@@ -254,10 +259,11 @@ def make_graphs(n):
         df['Hosp_prob'] = y_prob_list
         df['Hosp_prob'] = df.loc[:,'Hosp_prob'].apply(lambda x: round(x,4))
         df['Stay_length'] = y_pred_reg
+        df['Stay_length'] = df.loc[:,'Stay_length'].apply(lambda x: round(x,2))
         df["Name"] = df.apply(lambda x: generate_name(), axis=1)
         ## Now Creating df for the table that will be displayed:
 
-        df_table = df[['Name','Site','Age_band','Gender','Status','Hosp_prob','Stay_length']]
+        df_table = df[['Name','Site','Age_band','Gender','Status','Hosp_prob','Stay_length']].sort_values(by = ['Hosp_prob'], ascending = False)
         dict_admissions = {1: 'Expected Admission', 0: 'Might Not be Admitted'}
         dict_gen = {0: 'male', 1: 'female'}
         dict_age = {0: '16-34',
@@ -274,8 +280,8 @@ def make_graphs(n):
             ),
         
         ## Histogram ##
-
-        return dcc.Graph(figure=fig_1), fig_2, fig_3, table, f"Expected Predictions"
+        fig_4 = visualize.predictions_hist(df_table)
+        return dcc.Graph(figure=fig_1), fig_2, fig_3, dcc.Graph(figure = fig_4), table, f"Expected Predictions"
 
 @callback(
         Output('output-title-2', 'children'), 
