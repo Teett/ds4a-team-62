@@ -13,11 +13,11 @@ import requests
 import json
 from components.kpi.kpibadge import kpibadge
 from components.data_requests.get_df import get_generate_df
-from components.data_requests.data_transformation import transform_data
+from components.data_requests.data_transformation import transform_data, reg_transform_data
 import pickle
 import dash_daq as daq
 from visualization import visualize
-from models.predict_model import get_hosp_probabilities, get_hosp_pred
+from models.predict_model import get_hosp_probabilities, get_hosp_pred, get_reg_prediction
 
 
 # dash-labs plugin call, menu name and route
@@ -209,13 +209,16 @@ def make_graphs(n):
     if n is None:
         return no_update
     else:
+        ## Predictions of Hospitalization:
         daily_admissions = get_generate_df()
         adm_dummies = transform_data(daily_admissions)
         y_prob_list = get_hosp_probabilities(adm_dummies)
         y_pred = get_hosp_pred(adm_dummies)
         gauge_value = sum(y_prob_list)/len(y_prob_list)
+        
         df_fig = daily_admissions.copy()
         fig_1 = visualize.admissions_plot(y_pred,df_fig)
+        
         fig_2 = daq.Gauge(
             color={"gradient":True,"ranges":{"green":[0.35,0.50],"yellow":[0.20,0.35],"red":[0,0.2]}},
             value= gauge_value,
@@ -224,10 +227,17 @@ def make_graphs(n):
             min=0,
             size = 300
         )
+
+        ## Predictions of Time spent in the ER:
+
+        df_regression = get_generate_df()
+        df_regression["Admission_ALL"] = y_pred
+        reg_dummies = reg_transform_data(df_regression)
+        y_pred_reg = get_reg_prediction(reg_dummies)
+
         fig_3 = daq.Gauge(
             color={"gradient":True,"ranges":{"green":[0,75],"yellow":[75,120],"red":[120,200]}},
-            #value=y_prob.mean().item(),
-            value = 80, #testing value until we have regression model
+            value=y_pred_reg.mean().item(),
             label='Average time in Emergency Dept.',
             max=200,
             min=0,
