@@ -60,7 +60,8 @@ df_test['y_prob'] = y_prob_test
 df_test['y_prob'] = df_test.loc[:,'y_prob'].apply(lambda x: round(x,4))
 df_test = df_test.sort_values(by = ['y_prob'])
 df_test["row_number"] = np.arange(len(df_test))
-df_test = df_test.sample(n=1000, random_state=1)
+df_test['y_pred'] = y_test
+df_test = df_test.groupby('y_pred', group_keys=False).apply(lambda x: x.sample(250))
 print(df_test)
 
 layout = html.Div(
@@ -220,7 +221,8 @@ def generate_log_reg(option_selected):
         return no_update
     elif option_selected == 'admission':
         plot_1 = visualize.logistic_regression_plot(df)
-        plot_2 = visualize.logistic_regression_plot(df_test, color = y_test)
+        plot_2 = visualize.logistic_regression_plot(df_test,
+                                                    opacity = 0.4)
         return plot_1, plot_2, f"Logistic Regression of Patients in the ER waiting for Hospitalization", f"1: Expected Admission, 0: Might not be admitted"
     #elif option_selected == 'stay_length':
     else:

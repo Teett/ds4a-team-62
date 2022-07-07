@@ -169,13 +169,14 @@ def admissions_plot(pred_result,df):
                 text_auto=True)
     return plot
 
-def logistic_regression_plot(regression_df, color = 'y_pred', opacity = 0.8, size = 3):
+def logistic_regression_plot(regression_df, color = 'y_pred', opacity = 0.8):
     '''
     Plots a logistic regression plot of the provided df.
     '''
     #plot_df = regression_df.sort_values(by = ['y_prob'])
+    regression_df.y_pred = regression_df.y_pred.astype(str)
     plot = px.scatter(regression_df, x='row_number', y='y_prob', color=color, 
-                      opacity = opacity, size = size)
+                      opacity = opacity, height = 1000, width = 1200)
     plot.update_layout(shapes=[
     # adds line at y=5
     dict(
@@ -185,4 +186,5 @@ def logistic_regression_plot(regression_df, color = 'y_pred', opacity = 0.8, siz
       line = dict(color = 'Red')
     )
     ])
+    plot.update_traces(marker={'size': 15})
     return plot
