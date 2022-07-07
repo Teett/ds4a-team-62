@@ -46,6 +46,22 @@ except:
     df["rowname"] = df.index
 
 print(df)
+################################################################################################
+# Run the tunned model on the test data to produce the logistic regression plot on the test set
+################################################################################################
+X_test = pd.read_pickle('../../data/processed/admission/X_test_adm.pickle')
+y_test = pd.read_pickle('../../data/processed/admission/y_test_adm.pickle')
+
+y_prob_test = get_hosp_probabilities(X_test)
+y_pred_test = get_hosp_pred(X_test)
+df_test = X_test.copy()
+df_test['y_pred'] = y_pred_test
+df_test['y_prob'] = y_prob_test
+df_test['y_prob'] = df_test.loc[:,'y_prob'].apply(lambda x: round(x,4))
+df_test = df_test.sort_values(by = ['y_prob'])
+df_test["row_number"] = np.arange(len(df_test))
+df_test = df_test.sample(n=1000, random_state=1)
+print(df_test)
 
 layout = html.Div(
     [
@@ -204,7 +220,8 @@ def generate_log_reg(option_selected):
         return no_update
     elif option_selected == 'admission':
         plot_1 = visualize.logistic_regression_plot(df)
-        return plot_1, plot_1, f"Logistic Regression of Patients in the ER waiting for Hospitalization", f"1: Expected Admission, 0: Might not be admitted"
+        plot_2 = visualize.logistic_regression_plot(df_test, color = y_test)
+        return plot_1, plot_2, f"Logistic Regression of Patients in the ER waiting for Hospitalization", f"1: Expected Admission, 0: Might not be admitted"
     #elif option_selected == 'stay_length':
     else:
         pass
