@@ -206,3 +206,7 @@ def residuals_plot(df, title_name):
     title = title_name
     )
     return fig
+
+def predictions_hist(df):
+    fig = px.histogram(df, x="total_bill")
+    return fig
