@@ -8,10 +8,10 @@ import seaborn as sns
 import pickle
 
 # %% read data 
-X_train = pd.read_pickle('../../data/processed/stay/X_train_stay.pickle')
-X_test = pd.read_pickle('../../data/processed/stay/X_test_stay.pickle')
-y_train = pd.read_pickle('../../data/processed/stay/y_train_stay.pickle')
-y_test = pd.read_pickle('../../data/processed/stay/y_test_stay.pickle')
+X_train = pd.read_pickle('../../../data/processed/stay/X_train_stay.pickle')
+X_test = pd.read_pickle('../../../data/processed/stay/X_test_stay.pickle')
+y_train = pd.read_pickle('../../../data/processed/stay/y_train_stay.pickle')
+y_test = pd.read_pickle('../../../data/processed/stay/y_test_stay.pickle')
 
 
 sns.histplot(data = pd.DataFrame(y_train), x = "Stay_length")
@@ -47,11 +47,14 @@ df_resultados_cv
 
 
 #%%
+print(df_resultados_cv.groupby('l1_ratio')['rmse_cv'].min())
 fig, ax = plt.subplots(figsize=(7, 3.84))
 df_resultados_cv.groupby('l1_ratio')['rmse_cv'].min().plot(ax = ax)
-ax.set_title('Evolución del error CV en función de la l1_ratio')
+ax.set_title('Evolución del error CV en función del l1_ratio')
+ax.ticklabel_format(useOffset=False, style='plain')
 ax.set_xlabel('l1_ratio')
-ax.set_ylabel('rmse_cv');
+ax.set_ylabel('RMSE CV');
+fig.savefig('../assets/models_stay/Regression_1.png', format='png', dpi=1200)
 
 print(f"Mejor valor de alpha encontrado: {modelo.alpha_}")
 print(f"Mejor valor de l1_ratio encontrado: {modelo.l1_ratio_}")
@@ -64,12 +67,13 @@ df_coeficientes = pd.DataFrame(
 
 
 #%%
-fig, ax = plt.subplots(figsize=(11, 3.84))
+fig, ax = plt.subplots(figsize=(13, 9))
 ax.stem(df_coeficientes.predictor, df_coeficientes.coef, markerfmt=' ')
-plt.xticks(rotation=90, ha='right', size=5)
+plt.xticks(rotation=45, ha='right', size=10)
 ax.set_xlabel('variable')
 ax.set_ylabel('coeficientes')
-ax.set_title('Coeficientes del modelo');
+ax.set_title('Coeficientes del modelo')
+fig.savefig('../assets/models_stay/Regression_2.png', format='png', dpi=1800)
 
 
 #%%
