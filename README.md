@@ -1,7 +1,7 @@
 ds4a-team-62
 ==============================
 
-A data science project using pluripathologic patient data
+![image](https://user-images.githubusercontent.com/46414320/177918752-792bbd0a-23e7-4514-b92d-6f8257eb98a8.png)
 
 Project Organization
 ------------
