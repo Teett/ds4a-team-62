@@ -1,5 +1,6 @@
 ds4a-team-62
 ==============================
+EDNA is up and running on http://ds4a-dev.us-east-2.elasticbeanstalk.com/
 
 ![image](https://user-images.githubusercontent.com/46414320/177918752-792bbd0a-23e7-4514-b92d-6f8257eb98a8.png)
 
